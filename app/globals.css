@@ -1,0 +1,315 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 255 84% 65%; /* Updated to match Ryzer purple from logo */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 255 84% 65%; /* Updated to match Ryzer purple from logo */
+    --radius: 0.5rem;
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 98%;
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 98%;
+
+    /* Sidebar specific variables */
+    --sidebar-background: 255 84% 65%; /* Updated to match Ryzer purple from logo */
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-accent: 255 84% 55%; /* Darker purple for hover states */
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 255 84% 55%; /* Darker purple for borders */
+    --sidebar-ring: 255 84% 65%;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 255 84% 65%; /* Updated to match Ryzer purple from logo */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 255 84% 65%; /* Updated to match Ryzer purple from logo */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 98%;
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 98%;
+
+    /* Sidebar specific variables */
+    --sidebar-background: 255 84% 55%; /* Darker purple for dark mode */
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-accent: 255 84% 45%; /* Even darker purple for hover states in dark mode */
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 255 84% 45%; /* Darker purple for borders in dark mode */
+    --sidebar-ring: 255 84% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Add consistent focus styles for better accessibility */
+@layer base {
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+}
+
+/* Add utility classes for status indicators */
+@layer utilities {
+  .status-dot {
+    @apply inline-block h-2 w-2 rounded-full;
+  }
+
+  .status-dot-success {
+    @apply bg-green-500;
+  }
+
+  .status-dot-warning {
+    @apply bg-yellow-500;
+  }
+
+  .status-dot-error {
+    @apply bg-red-500;
+  }
+
+  .status-badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-xs font-medium;
+  }
+
+  .status-badge-success {
+    @apply bg-green-50 text-green-700 border border-green-200;
+  }
+
+  .status-badge-warning {
+    @apply bg-yellow-50 text-yellow-700 border border-yellow-200;
+  }
+
+  .status-badge-error {
+    @apply bg-red-50 text-red-700 border border-red-200;
+  }
+
+  .status-badge-info {
+    @apply bg-blue-50 text-blue-700 border border-blue-200;
+  }
+}
+
+/* Add animation for sidebar dropdown */
+@keyframes slideDown {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    height: var(--radix-collapsible-content-height);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    height: var(--radix-collapsible-content-height);
+    opacity: 1;
+  }
+  to {
+    height: 0;
+    opacity: 0;
+  }
+}
+
+.sidebar-dropdown-content[data-state="open"] {
+  animation: slideDown 200ms ease-out;
+}
+
+.sidebar-dropdown-content[data-state="closed"] {
+  animation: slideUp 200ms ease-out;
+}
+
+/* Add hover effects for Quick Action cards */
+.quick-action-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.quick-action-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Ensure consistent icon sizing */
+.lucide-icon {
+  flex-shrink: 0;
+}
+
+/* Improve focus visibility for interactive elements */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Ensure proper contrast for text */
+.text-muted-foreground {
+  color: hsl(240 3.8% 46.1%);
+}
+
+/* Improve modal transitions */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.modal-overlay[data-state="open"] {
+  animation: fadeIn 200ms ease-out;
+}
+
+.modal-overlay[data-state="closed"] {
+  animation: fadeOut 200ms ease-out;
+}
+
+.modal-content[data-state="open"] {
+  animation: fadeIn 200ms ease-out, slideDown 200ms ease-out;
+}
+
+.modal-content[data-state="closed"] {
+  animation: fadeOut 200ms ease-out, slideUp 200ms ease-out;
+}
+
+/* Typography improvements */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @apply tracking-tight;
+}
+
+h1 {
+  @apply text-3xl font-bold;
+  line-height: 1.2;
+}
+
+h2 {
+  @apply text-2xl font-semibold;
+  line-height: 1.25;
+}
+
+h3 {
+  @apply text-xl font-semibold;
+  line-height: 1.3;
+}
+
+p {
+  @apply leading-relaxed;
+}
+
+/* Consistent spacing */
+.section-spacing {
+  @apply space-y-6;
+}
+
+.card-spacing {
+  @apply space-y-4;
+}
+
+/* Improved button styles */
+.btn-primary {
+  @apply bg-primary text-primary-foreground hover:bg-primary/90;
+}
+
+.btn-secondary {
+  @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
+}
+
+/* Improved form element styles */
+input,
+select,
+textarea {
+  @apply px-3 py-2 rounded-md border border-input bg-background;
+}
+
+/* Improved table styles */
+table {
+  @apply w-full border-collapse;
+}
+
+th {
+  @apply text-left p-3 text-sm font-medium bg-muted/50;
+}
+
+td {
+  @apply p-3 border-t;
+}
+
+/* Improved card styles */
+.card {
+  @apply rounded-lg border bg-card text-card-foreground shadow-sm;
+}
+
+.card-header {
+  @apply flex flex-col space-y-1.5 p-6;
+}
+
+.card-content {
+  @apply p-6 pt-0;
+}
+
+.card-footer {
+  @apply flex items-center p-6 pt-0;
+}
