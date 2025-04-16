@@ -32,10 +32,6 @@ export function CreatePolicyDialog({ open, onOpenChange }: CreatePolicyDialogPro
         <DialogHeader>
           <DialogTitle className="text-xl">Create Message Signing Policy</DialogTitle>
           <DialogDescription>Define rules for message signing operations</DialogDescription>
-          <Button variant="ghost" size="icon" className="absolute right-4 top-4" onClick={() => onOpenChange(false)}>
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </Button>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">

@@ -65,17 +65,20 @@
 /* Login container */
 .login-container {
   transition: all 0.3s ease;
+  padding: 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 /* Input focus effects */
 input:focus {
   transition: all 0.3s ease;
-  box-shadow: 0 0 0 2px rgba(var(--primary-rgb, 0, 112, 243), 0.1);
+  box-shadow: 0 0 0 2px rgba(var(--primary-rgb, 124, 58, 237), 0.2);
 }
 
 /* CSS Variables for primary color */
 :root {
-  --primary-rgb: 0, 112, 243;
+  --primary-rgb: 124, 58, 237; /* Purple-600 RGB values */
 }
 
 /* Enhance button hover effects */
@@ -83,7 +86,21 @@ button {
   transition: all 0.3s ease;
 }
 
+button:hover {
+  transform: translateY(-1px);
+}
+
 /* Improve tab transitions */
 .tabs-transition {
   transition: all 0.3s ease;
+}
+
+/* MetaMask button enhancement */
+button[class*="flex items-center space-x-3"] {
+  transition: all 0.3s ease;
+}
+
+button[class*="flex items-center space-x-3"]:hover {
+  background-color: rgba(124, 58, 237, 0.05);
+  border-color: rgba(124, 58, 237, 0.3);
 }

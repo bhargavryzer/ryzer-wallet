@@ -27,10 +27,6 @@ export function EmergencyPolicyDialog({ open, onOpenChange }: EmergencyPolicyDia
         <DialogHeader>
           <DialogTitle className="text-xl">Manage Emergency Policy</DialogTitle>
           <DialogDescription>Implement a one-click emergency policy</DialogDescription>
-          <Button variant="ghost" size="icon" className="absolute right-4 top-4" onClick={() => onOpenChange(false)}>
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </Button>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-green-800 flex items-start gap-2">

@@ -31,116 +31,134 @@ export default function MPCWalletsPage() {
   const [showHelpTopics, setShowHelpTopics] = useState(false)
   const [projectName, setProjectName] = useState("")
   const [threshold, setThreshold] = useState("2/2")
-  // Define the type for the vault
-  type Vault = {
-    name: string;
-    type: string;
-    status: string;
-    created: string;
-    mainGroupCreated: boolean;
-  }
-  
-  const [activeVault, setActiveVault] = useState<Vault | null>(null)
   const [activeTab, setActiveTab] = useState("organization")
   const [keyShareTab, setKeyShareTab] = useState("main")
 
+  type Vault = {
+    name: string
+    type: string
+    status: string
+    created: string
+    mainGroupCreated: boolean
+  }
+
+  const [activeVault, setActiveVault] = useState<Vault | null>(null)
+
   // Mock data for the vault view
   const mockVault = {
-    name: "test vault",
+    name: "Test Vault",
     type: "Organization-Controlled",
     status: "Active",
     created: "2023-10-15",
-    mainGroupCreated: false
+    mainGroupCreated: false,
   }
 
   const handleVaultCreated = () => {
-    setActiveVault(mockVault)
+    setActiveVault({ ...mockVault, name: projectName || mockVault.name })
     setShowCreateVault(false)
+    setProjectName("")
   }
 
   const handleMainGroupCreated = () => {
     setShowCreateMainGroup(false)
-    // Update the mock vault to show main group is created
     if (activeVault) {
-      setActiveVault({...activeVault, mainGroupCreated: true})
+      setActiveVault({ ...activeVault, mainGroupCreated: true })
     } else {
-      setActiveVault({...mockVault, mainGroupCreated: true})
+      setActiveVault({ ...mockVault, mainGroupCreated: true })
     }
   }
 
-  // Render the vault details view when a vault is active
+  const handleProjectCreated = () => {
+    setShowCreateProject(false)
+    setProjectName("")
+  }
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+  }
+
   const renderVaultDetails = () => {
     return (
-      <div className="space-y-6">
-        {/* Vault Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="bg-primary/10 p-2 rounded-full">
-              <Key className="h-5 w-5 text-primary" />
+      <div className="space-y-8">
+        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+          <div className="flex items-center gap-4">
+            <div className="rounded-full bg-primary/10 p-2">
+              <Key className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold">{mockVault.name}</h2>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline">{mockVault.type}</Badge>
-                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                  {mockVault.status}
+              <h2 className="text-2xl font-semibold">{activeVault?.name}</h2>
+              <div className="mt-1 flex items-center gap-2">
+                <Badge variant="outline" className="text-sm">
+                  {activeVault?.type}
+                </Badge>
+                <Badge
+                  variant="outline"
+                  className="bg-green-50 text-green-700 border-green-200"
+                >
+                  {activeVault?.status}
                 </Badge>
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
+          <div className="flex items-center gap-3">
+            <Button variant="outline" className="h-10">
               <Edit className="mr-2 h-4 w-4" />
               Edit Vault
             </Button>
-            <Button variant="outline" size="sm">
+            <Button className="h-10">
               <Plus className="mr-2 h-4 w-4" />
               Create Wallet
             </Button>
           </div>
         </div>
 
-        {/* Extended Public Keys */}
-        <Card>
+        <Card className="border-none shadow-sm">
           <CardHeader>
-            <CardTitle>Extended Public Keys</CardTitle>
+            <CardTitle className="text-lg font-medium">Extended Public Keys</CardTitle>
           </CardHeader>
           <CardContent>
-            {!mockVault.mainGroupCreated ? (
-              <div className="bg-amber-50 border border-amber-200 rounded-md p-4 flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5" />
-                <div>
-                  <h4 className="font-medium text-amber-800">Not yet created. Please create a Main Group first.</h4>
-                  <p className="text-sm text-amber-700 mt-1">
-                    The public and private keys for all wallets within this vault are derived from the corresponding extended public and private keys.
-                  </p>
-                  <Button variant="link" className="text-amber-600 p-0 h-auto mt-1">
-                    Learn More
+            {!activeVault?.mainGroupCreated ? (
+              <Alert variant="default">
+                <AlertCircle className="h-5 w-5" />
+                <AlertTitle>Main Group Required</AlertTitle>
+                <AlertDescription>
+                  Please create a Main Group to generate extended public keys.
+                  <Button
+                    variant="link"
+                    className="p-0 text-amber-600 h-auto mt-2"
+                    onClick={() => setShowCreateMainGroup(true)}
+                  >
+                    Create Now
                   </Button>
-                </div>
-              </div>
+                </AlertDescription>
+              </Alert>
             ) : (
               <div className="space-y-4">
-                <div className="flex justify-between items-center p-3 bg-muted/30 rounded-md">
-                  <div>
+                <div className="flex items-center justify-between rounded-md bg-muted/30 p-3">
+                  <div className="space-y-1">
                     <p className="text-sm font-medium">Extended Public Key (xpub)</p>
-                    <p className="text-xs text-muted-foreground mt-1">xpub6CUGRUo...truncated...HTDM</p>
+                    <p className="text-xs text-muted-foreground">
+                      xpub6CUGRUo...HTDM
+                    </p>
                   </div>
                   <div className="flex gap-2">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Button variant="ghost" size="icon">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => copyToClipboard("xpub6CUGRUo...HTDM")}
+                          >
                             <Copy className="h-4 w-4" />
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>Copy to clipboard</TooltipContent>
                       </Tooltip>
-                    </TooltipProvider>
-                    <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Button variant="ghost" size="icon">
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
                             <ExternalLink className="h-4 w-4" />
                           </Button>
                         </TooltipTrigger>
@@ -154,15 +172,13 @@ export default function MPCWalletsPage() {
           </CardContent>
         </Card>
 
-        {/* Key Share Management */}
-        <Card>
+        <Card className="border-none shadow-sm">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Key Share Management</CardTitle>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="ml-auto"
+              <CardTitle className="text-lg font-medium">Key Share Management</CardTitle>
+              <Button
+                variant="outline"
+                className="h-10"
                 onClick={() => setShowKeyShareVerification(true)}
               >
                 <ExternalLink className="mr-2 h-4 w-4" />
@@ -171,25 +187,30 @@ export default function MPCWalletsPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <Tabs value={keyShareTab} onValueChange={setKeyShareTab}>
-              <TabsList className="mb-4">
-                <TabsTrigger value="main" className="flex items-center gap-1">
-                  <Key className="h-4 w-4" />
+            <Tabs value={keyShareTab} onValueChange={setKeyShareTab} className="w-full">
+              <TabsList className="grid w-full max-w-md grid-cols-3">
+                <TabsTrigger value="main" className="text-sm">
+                  <Key className="mr-2 h-4 w-4" />
                   Main Group
                 </TabsTrigger>
-                <TabsTrigger value="signing" className="flex items-center gap-1">
-                  <Users className="h-4 w-4" />
+                <TabsTrigger value="signing" className="text-sm">
+                  <Users className="mr-2 h-4 w-4" />
                   Signing Groups
                 </TabsTrigger>
-                <TabsTrigger value="recovery" className="flex items-center gap-1">
-                  <Shield className="h-4 w-4" />
+                <TabsTrigger value="recovery" className="text-sm">
+                  <Shield className="mr-2 h-4 w-4" />
                   Recovery Groups
                 </TabsTrigger>
               </TabsList>
-              
-              <TabsContent value="main">
-                {!mockVault.mainGroupCreated ? (
-                  <div className="flex flex-col items-center justify-center py-12">
+
+              <TabsContent value="main" className="mt-6">
+                {!activeVault?.mainGroupCreated ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                    className="flex flex-col items-center justify-center py-12"
+                  >
                     <Image
                       src="/digital-wallet-batch.png"
                       alt="Main Group"
@@ -197,49 +218,56 @@ export default function MPCWalletsPage() {
                       height={80}
                       className="mb-6"
                     />
-                    <h3 className="text-lg font-medium mb-2">Please create a Main Group first.</h3>
-                    <Button 
-                      onClick={() => setShowCreateMainGroup(true)} 
+                    <h3 className="text-lg font-medium mb-4">
+                      Please create a Main Group first
+                    </h3>
+                    <Button
                       className="mb-8 hover:scale-105 transition-transform"
+                      onClick={() => setShowCreateMainGroup(true)}
                     >
                       Create Main Group
                     </Button>
 
                     {showMainGroupInfo && (
-                      <div className="w-full max-w-2xl bg-muted/20 rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-medium flex items-center">
-                            <Info className="h-4 w-4 mr-2" />
+                      <div className="w-full max-w-2xl rounded-lg bg-muted/20 p-5">
+                        <div className="mb-2 flex items-center justify-between">
+                          <h4 className="flex items-center text-base font-medium">
+                            <Info className="mr-2 h-4 w-4" />
                             What is a Main Group?
                           </h4>
-                          <Button variant="ghost" size="sm" onClick={() => setShowMainGroupInfo(false)}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setShowMainGroupInfo(false)}
+                          >
                             Collapse <ChevronDown className="ml-1 h-4 w-4" />
                           </Button>
                         </div>
-                        <p className="text-sm mb-2">
+                        <p className="mb-2 text-sm text-muted-foreground">
                           The Main Group is used to sign transactions and to create Signing Groups and Recovery Groups.
                         </p>
-                        <p className="text-sm mb-2">
+                        <p className="mb-2 text-sm text-muted-foreground">
                           It operates on a 2-of-2 scheme, where Cobo and the organization each hold one key share. The organization's key share can be an API node or a Cobo Guard node.
                         </p>
-                        <Button variant="link" className="text-sm p-0 h-auto">
+                        <Button
+                          variant="link"
+                          className="h-auto p-0 text-sm text-primary"
+                        >
                           Learn More
                         </Button>
                       </div>
                     )}
-                  </div>
+                  </motion.div>
                 ) : (
-                  <div className="space-y-4">
-                    <div className="bg-green-50 border border-green-200 rounded-md p-4 flex items-start gap-3">
-                      <Check className="h-5 w-5 text-green-500 mt-0.5" />
-                      <div>
-                        <h4 className="font-medium text-green-800">Main Group Created Successfully</h4>
-                        <p className="text-sm text-green-700 mt-1">
-                          Your Main Group is now active and can be used to create wallets and manage key shares.
-                        </p>
-                      </div>
-                    </div>
-                    
+                  <div className="space-y-6">
+                    <Alert variant="default">
+                      <Check className="h-5 w-5" />
+                      <AlertTitle>Main Group Created</AlertTitle>
+                      <AlertDescription>
+                        Your Main Group is active and ready for wallet creation and key share management.
+                      </AlertDescription>
+                    </Alert>
+
                     <Table>
                       <TableHeader>
                         <TableRow>
@@ -254,7 +282,10 @@ export default function MPCWalletsPage() {
                           <TableCell className="font-medium">Cobo</TableCell>
                           <TableCell>TSS Test Node</TableCell>
                           <TableCell>
-                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                            <Badge
+                              variant="outline"
+                              className="bg-green-50 text-green-700 border-green-200"
+                            >
                               Active
                             </Badge>
                           </TableCell>
@@ -264,7 +295,10 @@ export default function MPCWalletsPage() {
                           <TableCell className="font-medium">Organization</TableCell>
                           <TableCell>API Node</TableCell>
                           <TableCell>
-                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                            <Badge
+                              variant="outline"
+                              className="bg-green-50 text-green-700 border-green-200"
+                            >
                               Active
                             </Badge>
                           </TableCell>
@@ -275,9 +309,14 @@ export default function MPCWalletsPage() {
                   </div>
                 )}
               </TabsContent>
-              
-              <TabsContent value="signing">
-                <div className="flex flex-col items-center justify-center py-12">
+
+              <TabsContent value="signing" className="mt-6">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="flex flex-col items-center justify-center py-12"
+                >
                   <Image
                     src="/interconnected-growth.png"
                     alt="Signing Groups"
@@ -285,21 +324,28 @@ export default function MPCWalletsPage() {
                     height={80}
                     className="mb-6"
                   />
-                  <h3 className="text-lg font-medium mb-2">No Signing Groups Created Yet</h3>
-                  <p className="text-muted-foreground text-center max-w-md mb-4">
+                  <h3 className="text-lg font-medium mb-4">
+                    No Signing Groups Created
+                  </h3>
+                  <p className="mb-4 max-w-md text-center text-sm text-muted-foreground">
                     Signing Groups allow you to delegate transaction signing capabilities to specific groups of users.
                   </p>
-                  <Button 
-                    disabled={!mockVault.mainGroupCreated}
-                    onClick={() => !mockVault.mainGroupCreated && setShowMainGroupRequired(true)}
+                  <Button
+                    disabled={!activeVault?.mainGroupCreated}
+                    onClick={() => !activeVault?.mainGroupCreated && setShowMainGroupRequired(true)}
                   >
                     Create Signing Group
                   </Button>
-                </div>
+                </motion.div>
               </TabsContent>
-              
-              <TabsContent value="recovery">
-                <div className="flex flex-col items-center justify-center py-12">
+
+              <TabsContent value="recovery" className="mt-6">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="flex flex-col items-center justify-center py-12"
+                >
                   <Image
                     src="/digital-invoice-flow.png"
                     alt="Recovery Groups"
@@ -307,17 +353,19 @@ export default function MPCWalletsPage() {
                     height={80}
                     className="mb-6"
                   />
-                  <h3 className="text-lg font-medium mb-2">No Recovery Groups Created Yet</h3>
-                  <p className="text-muted-foreground text-center max-w-md mb-4">
+                  <h3 className="text-lg font-medium mb-4">
+                    No Recovery Groups Created
+                  </h3>
+                  <p className="mb-4 max-w-md text-center text-sm text-muted-foreground">
                     Recovery Groups provide a secure way to recover access to your wallets in case of emergency.
                   </p>
-                  <Button 
-                    disabled={!mockVault.mainGroupCreated}
-                    onClick={() => !mockVault.mainGroupCreated && setShowMainGroupRequired(true)}
+                  <Button
+                    disabled={!activeVault?.mainGroupCreated}
+                    onClick={() => !activeVault?.mainGroupCreated && setShowMainGroupRequired(true)}
                   >
                     Create Recovery Group
                   </Button>
-                </div>
+                </motion.div>
               </TabsContent>
             </Tabs>
           </CardContent>
@@ -326,33 +374,36 @@ export default function MPCWalletsPage() {
     )
   }
 
-  // Render the initial vault creation view
   const renderVaultCreation = () => {
     return (
-      <Card>
+      <Card className="border-none shadow-sm">
         <CardHeader>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <CardTitle>What are MPC Wallets?</CardTitle>
-              <CardDescription>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1">
+              <CardTitle className="text-xl font-medium">What are MPC Wallets?</CardTitle>
+              <CardDescription className="text-sm">
                 MPC Wallets use multi-party computation (MPC) technology to eliminate single points of failure.
               </CardDescription>
             </div>
-            <Button 
-              variant="ghost" 
-              className="text-primary self-start"
+            <Button
+              variant="ghost"
+              className="h-9 text-primary"
               onClick={() => setShowHelpTopics(true)}
             >
               <Info className="mr-2 h-4 w-4" />
-              Introduction and Demo for Creating MPC Wallets
+              Introduction and Demo
             </Button>
           </div>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="organization">Organization-Controlled Wallets</TabsTrigger>
-              <TabsTrigger value="user">User-Controlled Wallets</TabsTrigger>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full max-w-md grid-cols-2">
+              <TabsTrigger value="organization" className="text-sm">
+                Organization-Controlled
+              </TabsTrigger>
+              <TabsTrigger value="user" className="text-sm">
+                User-Controlled
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="organization" className="pt-6">
               <motion.div
@@ -372,14 +423,13 @@ export default function MPCWalletsPage() {
                     alt="Vault icon"
                     width={80}
                     height={80}
-                    className="text-muted-foreground"
                   />
                 </motion.div>
                 <motion.h3
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.3 }}
-                  className="text-lg font-medium mb-2"
+                  className="text-lg font-medium mb-4"
                 >
                   Please create a vault first
                 </motion.h3>
@@ -389,33 +439,38 @@ export default function MPCWalletsPage() {
                   transition={{ delay: 0.4 }}
                 >
                   <Button
-                    onClick={() => setShowCreateVault(true)}
                     className="mb-8 hover:scale-105 transition-transform"
+                    onClick={() => setShowCreateVault(true)}
                   >
                     Create Vault
                   </Button>
                 </motion.div>
 
                 {showVaultInfo && (
-                  <div className="w-full max-w-2xl bg-muted/20 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium flex items-center">
-                        <Info className="h-4 w-4 mr-2" />
+                  <div className="w-full max-w-2xl rounded-lg bg-muted/20 p-5">
+                    <div className="mb-2 flex items-center justify-between">
+                      <h4 className="flex items-center text-base font-medium">
+                        <Info className="mr-2 h-4 w-4" />
                         What is a vault?
                       </h4>
-                      <Button variant="ghost" size="sm" onClick={() => setShowVaultInfo(false)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowVaultInfo(false)}
+                      >
                         Collapse <ChevronDown className="ml-1 h-4 w-4" />
                       </Button>
                     </div>
-                    <p className="text-sm mb-2">
-                      A group of key shares will be generated for each vault. After the key shares are generated, you
-                      can create multiple MPC wallets and addresses within this vault.
+                    <p className="mb-2 text-sm text-muted-foreground">
+                      A group of key shares will be generated for each vault. After the key shares are generated, you can create multiple MPC wallets and addresses within this vault.
                     </p>
-                    <p className="text-sm mb-2">
-                      For an organization-controlled vault, clients (including enterprises or institutions)
-                      participate in the management of key shares.
+                    <p className="mb-2 text-sm text-muted-foreground">
+                      For an organization-controlled vault, clients (including enterprises or institutions) participate in the management of key shares.
                     </p>
-                    <Button variant="link" className="text-sm p-0 h-auto">
+                    <Button
+                      variant="link"
+                      className="h-auto p-0 text-sm text-primary"
+                    >
                       Learn More
                     </Button>
                   </div>
@@ -423,42 +478,73 @@ export default function MPCWalletsPage() {
               </motion.div>
             </TabsContent>
             <TabsContent value="user" className="pt-6">
-              <div className="flex flex-col items-center justify-center py-12">
-                <div className="mb-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="flex flex-col items-center justify-center py-12"
+              >
+                <motion.div
+                  initial={{ scale: 0.8 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.3, delay: 0.2 }}
+                  className="mb-6"
+                >
                   <Image
                     src="/team-brainstorm.png"
                     alt="Project icon"
                     width={80}
                     height={80}
-                    className="text-muted-foreground"
                   />
-                </div>
-                <h3 className="text-lg font-medium mb-2">Please create a project first</h3>
-                <Button onClick={() => setShowCreateProject(true)} className="mb-8">
-                  Create Project
-                </Button>
+                </motion.div>
+                <motion.h3
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="text-lg font-medium mb-4"
+                >
+                  Please create a project first
+                </motion.h3>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <Button
+                    className="mb-8 hover:scale-105 transition-transform"
+                    onClick={() => setShowCreateProject(true)}
+                  >
+                    Create Project
+                  </Button>
+                </motion.div>
 
                 {showProjectInfo && (
-                  <div className="w-full max-w-2xl bg-muted/20 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium flex items-center">
-                        <Info className="h-4 w-4 mr-2" />
+                  <div className="w-full max-w-2xl rounded-lg bg-muted/20 p-5">
+                    <div className="mb-2 flex items-center justify-between">
+                      <h4 className="flex items-center text-base font-medium">
+                        <Info className="mr-2 h-4 w-4" />
                         What is a User-Controlled Project?
                       </h4>
-                      <Button variant="ghost" size="sm" onClick={() => setShowProjectInfo(false)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowProjectInfo(false)}
+                      >
                         Collapse <ChevronDown className="ml-1 h-4 w-4" />
                       </Button>
                     </div>
-                    <p className="text-sm mb-2">
-                      You can manage your end users' key shares and wallets within each project. When creating a
-                      project, you need to set up a threshold signature scheme among the key share holders.
+                    <p className="mb-2 text-sm text-muted-foreground">
+                      You can manage your end users' key shares and wallets within each project. When creating a project, you need to set up a threshold signature scheme among the key share holders.
                     </p>
-                    <Button variant="link" className="text-sm p-0 h-auto">
+                    <Button
+                      variant="link"
+                      className="h-auto p-0 text-sm text-primary"
+                    >
                       Learn More
                     </Button>
                   </div>
                 )}
-              </div>
+              </motion.div>
             </TabsContent>
           </Tabs>
         </CardContent>
@@ -468,20 +554,19 @@ export default function MPCWalletsPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
+      <div className="space-y-8">
+        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+          <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <h1 className="text-3xl font-bold tracking-tight">MPC Wallets</h1>
-              <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">Developer</span>
+              <h1 className="text-3xl font-semibold tracking-tight">MPC Wallets</h1>
+              <span className="rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">Developer</span>
             </div>
-            <p className="text-muted-foreground">Manage your MPC wallets</p>
+            <p className="text-sm text-muted-foreground">Manage your MPC wallets</p>
           </div>
         </div>
 
         {activeVault ? renderVaultDetails() : renderVaultCreation()}
 
-        {/* Create Vault Modal */}
         <Dialog open={showCreateVault} onOpenChange={setShowCreateVault}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
@@ -496,7 +581,7 @@ export default function MPCWalletsPage() {
                 <span className="sr-only">Close</span>
               </Button>
             </DialogHeader>
-            <div className="space-y-4 py-4">
+            <div className="space-y-6 py-4">
               <div className="space-y-2">
                 <Label htmlFor="vault-name">Vault Name</Label>
                 <Input
@@ -508,8 +593,8 @@ export default function MPCWalletsPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="threshold">Threshold Signature Scheme</Label>
-                <Select defaultValue="2/2" value={threshold} onValueChange={setThreshold}>
-                  <SelectTrigger id="threshold">
+                <Select value={threshold} onValueChange={setThreshold}>
+                  <SelectTrigger id="threshold" className="h-10">
                     <SelectValue placeholder="Select threshold" />
                   </SelectTrigger>
                   <SelectContent>
@@ -523,15 +608,24 @@ export default function MPCWalletsPage() {
               </p>
             </div>
             <div className="flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setShowCreateVault(false)}>
+              <Button
+                variant="outline"
+                className="h-10"
+                onClick={() => setShowCreateVault(false)}
+              >
                 Cancel
               </Button>
-              <Button onClick={handleVaultCreated}>Create</Button>
+              <Button
+                className="h-10"
+                onClick={handleVaultCreated}
+                disabled={!projectName}
+              >
+                Create
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
 
-        {/* Create Main Group Modal */}
         <Dialog open={showCreateMainGroup} onOpenChange={setShowCreateMainGroup}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
@@ -546,13 +640,13 @@ export default function MPCWalletsPage() {
                 <span className="sr-only">Close</span>
               </Button>
             </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
+            <div className="space-y-6 py-4">
+              <div className="space-y-3">
                 <Label>Key Share Holders</Label>
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
+                  <div className="flex items-center justify-between rounded-md bg-muted/30 p-3">
                     <div className="flex items-center gap-3">
-                      <div className="bg-primary/10 p-2 rounded-full">
+                      <div className="rounded-full bg-primary/10 p-2">
                         <Shield className="h-4 w-4 text-primary" />
                       </div>
                       <div>
@@ -560,13 +654,16 @@ export default function MPCWalletsPage() {
                         <p className="text-xs text-muted-foreground">TSS Test Node</p>
                       </div>
                     </div>
-                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                    <Badge
+                      variant="outline"
+                      className="bg-green-50 text-green-700 border-green-200"
+                    >
                       Ready
                     </Badge>
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
+                  <div className="flex items-center justify-between rounded-md bg-muted/30 p-3">
                     <div className="flex items-center gap-3">
-                      <div className="bg-primary/10 p-2 rounded-full">
+                      <div className="rounded-full bg-primary/10 p-2">
                         <Users className="h-4 w-4 text-primary" />
                       </div>
                       <div>
@@ -574,21 +671,32 @@ export default function MPCWalletsPage() {
                         <p className="text-xs text-muted-foreground">API Node</p>
                       </div>
                     </div>
-                    <Button size="sm" onClick={() => setShowSecurityVerification(true)}>Set Up</Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowSecurityVerification(true)}
+                    >
+                      Set Up
+                    </Button>
                   </div>
                 </div>
               </div>
             </div>
             <div className="flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setShowCreateMainGroup(false)}>
+              <Button
+                variant="outline"
+                className="h-10"
+                onClick={() => setShowCreateMainGroup(false)}
+              >
                 Cancel
               </Button>
-              <Button onClick={handleMainGroupCreated}>Create</Button>
+              <Button className="h-10" onClick={handleMainGroupCreated}>
+                Create
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
 
-        {/* Security Verification Dialog */}
         <Dialog open={showSecurityVerification} onOpenChange={setShowSecurityVerification}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
@@ -603,30 +711,31 @@ export default function MPCWalletsPage() {
                 <span className="sr-only">Close</span>
               </Button>
             </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="bg-amber-50 border border-amber-200 rounded-md p-4 flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5" />
-                <div>
-                  <h4 className="font-medium text-amber-800">You have not set up Cobo Guard yet. For the security of your assets, please set up Cobo Guard first.</h4>
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="space-y-6 py-4">
+              <Alert variant="default">
+                <AlertCircle className="h-5 w-5" />
+                <AlertTitle>Cobo Guard Setup Required</AlertTitle>
+                <AlertDescription>
+                  For the security of your assets, please set up Cobo Guard first.
+                </AlertDescription>
+              </Alert>
+              <div className="flex items-center justify-between rounded-lg border p-4">
                 <div className="flex items-center gap-3">
-                  <div className="bg-blue-100 p-2 rounded-lg">
+                  <div className="rounded-lg bg-blue-100 p-2">
                     <Shield className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
                     <div className="font-medium">Cobo Guard</div>
                   </div>
                 </div>
-                <Button>Set Up</Button>
+                <Button variant="outline" className="h-10">
+                  Set Up
+                </Button>
               </div>
             </div>
           </DialogContent>
         </Dialog>
 
-        {/* Main Group Required Dialog */}
         <Dialog open={showMainGroupRequired} onOpenChange={setShowMainGroupRequired}>
           <DialogContent className="sm:max-w-xs">
             <DialogHeader>
@@ -643,17 +752,23 @@ export default function MPCWalletsPage() {
             </DialogHeader>
             <div className="py-4">
               <div className="flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5" />
-                <p>Please set up the Main Group before creating Recovery Groups.</p>
+                <AlertCircle className="mt-0.5 h-5 w-5 text-amber-500" />
+                <p className="text-sm">
+                  Please set up the Main Group before creating Recovery Groups.
+                </p>
               </div>
             </div>
             <div className="flex justify-end">
-              <Button onClick={() => setShowMainGroupRequired(false)}>OK</Button>
+              <Button
+                className="h-10"
+                onClick={() => setShowMainGroupRequired(false)}
+              >
+                OK
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
 
-        {/* Key Share Verification Modal */}
         <Dialog open={showKeyShareVerification} onOpenChange={setShowKeyShareVerification}>
           <DialogContent className="sm:max-w-4xl">
             <DialogHeader>
@@ -669,8 +784,8 @@ export default function MPCWalletsPage() {
               </Button>
             </DialogHeader>
             <div className="py-4">
-              <div className="flex justify-end mb-4">
-                <Button variant="outline" size="sm">
+              <div className="mb-4 flex justify-end">
+                <Button variant="outline" className="h-10">
                   <Filter className="mr-2 h-4 w-4" />
                   Filter
                 </Button>
@@ -686,19 +801,19 @@ export default function MPCWalletsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {/* Empty state */}
                   <TableRow>
                     <TableCell colSpan={5} className="h-40 text-center">
                       <div className="flex flex-col items-center justify-center">
-                        <div className="mb-4">
-                          <Image
-                            src="/digital-wallet-batch.png"
-                            alt="No Data"
-                            width={60}
-                            height={60}
-                          />
-                        </div>
-                        <p className="text-muted-foreground">No Data to Display</p>
+                        <Image
+                          src="/digital-wallet-batch.png"
+                          alt="No Data"
+                          width={60}
+                          height={60}
+                          className="mb-4"
+                        />
+                        <p className="text-sm text-muted-foreground">
+                          No Data to Display
+                        </p>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -708,7 +823,6 @@ export default function MPCWalletsPage() {
           </DialogContent>
         </Dialog>
 
-        {/* Help Topics Dialog */}
         <Dialog open={showHelpTopics} onOpenChange={setShowHelpTopics}>
           <DialogContent className="sm:max-w-3xl">
             <DialogHeader>
@@ -725,13 +839,15 @@ export default function MPCWalletsPage() {
             </DialogHeader>
             <div className="grid grid-cols-4 gap-4">
               <div className="col-span-1 border-r pr-4">
-                <div className="p-2 bg-primary/10 rounded-md text-primary font-medium">
+                <div className="rounded-md bg-primary/10 p-2 text-sm font-medium text-primary">
                   Introduction and Demo for Creating MPC Wallets
                 </div>
               </div>
-              <div className="col-span-3">
-                <h3 className="text-lg font-medium mb-4">Introduction and Demo for Creating MPC Wallets</h3>
-                <div className="aspect-video bg-black rounded-md overflow-hidden mb-4">
+              <div className="col-span-3 space-y-4">
+                <h3 className="text-lg font-medium">
+                  Introduction and Demo for Creating MPC Wallets
+                </h3>
+                <div className="aspect-video overflow-hidden rounded-md bg-black">
                   <iframe
                     width="100%"
                     height="100%"
@@ -743,113 +859,22 @@ export default function MPCWalletsPage() {
                   ></iframe>
                 </div>
                 <div className="flex justify-between">
-                  <Button variant="outline">
+                  <Button variant="outline" className="h-10">
                     <ExternalLink className="mr-2 h-4 w-4" />
                     View Guide
                   </Button>
-                  <Button onClick={() => setShowHelpTopics(false)}>Got It</Button>
-                </div>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Create Project Modal */}
-        <Dialog open={showCreateProject} onOpenChange={setShowCreateProject}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="text-xl">Create Project</DialogTitle>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-4 top-4"
-                onClick={() => setShowCreateVault(false)}
-              >
-                <X className="h-4 w-4" />
-                <span className="sr-only">Close</span>
-              </Button>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="vault-name">Vault Name</Label>
-                <Input
-                  id="vault-name"
-                  placeholder="Enter a name for your vault"
-                  defaultValue="test vault"
-                />
-              </div>
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Important</AlertTitle>
-                <AlertDescription>
-                  After creating a vault, you'll need to set up a Main Group to generate key shares before you can create wallets.
-                </AlertDescription>
-              </Alert>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowCreateVault(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleVaultCreated}>Create</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Create Main Group Modal */}
-        <Dialog open={showCreateMainGroup} onOpenChange={setShowCreateMainGroup}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="text-xl">Create Main Group</DialogTitle>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-4 top-4"
-                onClick={() => setShowCreateMainGroup(false)}
-              >
-                <X className="h-4 w-4" />
-                <span className="sr-only">Close</span>
-              </Button>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <Alert className="bg-blue-50 border-blue-200">
-                <Info className="h-4 w-4 text-blue-500" />
-                <AlertTitle className="text-blue-700">Cobo provides Server Co-Signers with a TSS test node</AlertTitle>
-                <AlertDescription className="text-blue-600">
-                  <ol className="list-decimal pl-4 space-y-2 mt-2">
-                    <li>You can use it directly to generate key shares and test wallet functions.</li>
-                    <li>You can also build your own node using our TSS program and explore key share management functions.</li>
-                  </ol>
-                  <Button variant="link" className="text-blue-600 p-0 h-auto mt-2">
-                    Learn More
+                  <Button
+                    className="h-10"
+                    onClick={() => setShowHelpTopics(false)}
+                  >
+                    Got It
                   </Button>
-                </AlertDescription>
-              </Alert>
-              
-              <div className="space-y-2">
-                <h4 className="font-medium">Select Key Share Holders</h4>
-                <div className="border rounded-md p-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span>Key Share Holder 1</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <input type="checkbox" id="cobo-holder" className="rounded border-gray-300" checked readOnly />
-                      <label htmlFor="cobo-holder">Cobo</label>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowCreateMainGroup(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleMainGroupCreated}>Confirm</Button>
-            </DialogFooter>
           </DialogContent>
         </Dialog>
 
-        {/* Create User-Controlled Project Modal */}
         <Dialog open={showCreateProject} onOpenChange={setShowCreateProject}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
@@ -864,7 +889,7 @@ export default function MPCWalletsPage() {
                 <span className="sr-only">Close</span>
               </Button>
             </DialogHeader>
-            <div className="space-y-4 py-4">
+            <div className="space-y-6 py-4">
               <div className="space-y-2">
                 <Label htmlFor="project-name">Project Name</Label>
                 <Input
@@ -877,7 +902,7 @@ export default function MPCWalletsPage() {
               <div className="space-y-2">
                 <Label htmlFor="threshold">Threshold of Signing Group</Label>
                 <Select value={threshold} onValueChange={setThreshold}>
-                  <SelectTrigger id="threshold">
+                  <SelectTrigger id="threshold" className="h-10">
                     <SelectValue placeholder="Select threshold" />
                   </SelectTrigger>
                   <SelectContent>
@@ -891,12 +916,22 @@ export default function MPCWalletsPage() {
                 When creating a project, you need to set up a threshold signature scheme among the key share holders.
               </p>
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowCreateProject(false)}>
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                className="h-10"
+                onClick={() => setShowCreateProject(false)}
+              >
                 Cancel
               </Button>
-              <Button>Next</Button>
-            </DialogFooter>
+              <Button
+                className="h-10"
+                onClick={handleProjectCreated}
+                disabled={!projectName}
+              >
+                Create
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
       </div>

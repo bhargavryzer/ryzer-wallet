@@ -32,6 +32,7 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 // Sample wallet data - in a real app, this would come from an API
@@ -75,6 +76,10 @@ export default function WalletDetailsPage() {
   const [showSendDialog, setShowSendDialog] = useState(false)
   const [showReceiveDialog, setShowReceiveDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
+  const [selectedToken, setSelectedToken] = useState(wallet?.tokens[0]?.symbol || "")
+  const [recipientAddress, setRecipientAddress] = useState("")
+  const [amount, setAmount] = useState("")
+  const [walletName, setWalletName] = useState(wallet?.name || "")
 
   // If wallet doesn't exist, redirect to wallets page
   if (!wallet) {
@@ -88,18 +93,34 @@ export default function WalletDetailsPage() {
 
   const shortAddress = `${wallet.address.substring(0, 6)}...${wallet.address.substring(wallet.address.length - 4)}`
 
+  const handleSend = () => {
+    // Implement send logic here
+    setShowSendDialog(false)
+    setRecipientAddress("")
+    setAmount("")
+  }
+
+  const handleEdit = () => {
+    // Implement edit logic here
+    setShowEditDialog(false)
+  }
+
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-3xl font-bold tracking-tight">{wallet.name}</h1>
-              <Badge variant="outline" className="ml-2">
-                {wallet.type === "custodial" ? "Custodial" : wallet.type === "mpc" ? "MPC" : "Smart Contract"}
+      <div className="space-y-8">
+        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-semibold tracking-tight">{wallet.name}</h1>
+              <Badge variant="outline" className="text-sm">
+                {wallet.type === "custodial"
+                  ? "Custodial"
+                  : wallet.type === "mpc"
+                    ? "MPC"
+                    : "Smart Contract"}
               </Badge>
             </div>
-            <div className="flex items-center gap-2 text-muted-foreground mt-1">
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
               <span>{shortAddress}</span>
               <TooltipProvider>
                 <Tooltip>
@@ -107,21 +128,19 @@ export default function WalletDetailsPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6"
+                      className="h-8 w-8"
                       onClick={() => copyToClipboard(wallet.address)}
                     >
-                      <Copy className="h-3.5 w-3.5" />
+                      <Copy className="h-4 w-4" />
                       <span className="sr-only">Copy address</span>
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>Copy address</TooltipContent>
                 </Tooltip>
-              </TooltipProvider>
-              <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-6 w-6">
-                      <ExternalLink className="h-3.5 w-3.5" />
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <ExternalLink className="h-4 w-4" />
                       <span className="sr-only">View on explorer</span>
                     </Button>
                   </TooltipTrigger>
@@ -130,18 +149,18 @@ export default function WalletDetailsPage() {
               </TooltipProvider>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button variant="outline" onClick={() => setShowReceiveDialog(true)}>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" className="h-10" onClick={() => setShowReceiveDialog(true)}>
               <Download className="mr-2 h-4 w-4" />
               Receive
             </Button>
-            <Button onClick={() => setShowSendDialog(true)}>
+            <Button className="h-10" onClick={() => setShowSendDialog(true)}>
               <Send className="mr-2 h-4 w-4" />
               Send
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
+                <Button variant="outline" size="icon" className="h-10 w-10">
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -161,29 +180,42 @@ export default function WalletDetailsPage() {
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card>
+        <div className="grid gap-6 sm:grid-cols-2">
+          <Card className="border-none shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-xl">Balance</CardTitle>
-              <Button variant="ghost" size="icon" onClick={() => setHideBalance(!hideBalance)}>
-                {hideBalance ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </Button>
+              <CardTitle className="text-lg font-medium">Balance</CardTitle>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => setHideBalance(!hideBalance)}
+                      aria-label={hideBalance ? "Show balance" : "Hide balance"}
+                    >
+                      {hideBalance ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>{hideBalance ? "Show balance" : "Hide balance"}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{hideBalance ? "••••••" : wallet.balance}</div>
-              <p className="text-sm text-muted-foreground">{wallet.blockchain}</p>
+              <div className="text-3xl font-semibold">{hideBalance ? "••••••" : wallet.balance}</div>
+              <p className="mt-1 text-sm text-muted-foreground">{wallet.blockchain}</p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-none shadow-sm">
             <CardHeader>
-              <CardTitle className="text-xl">Wallet Info</CardTitle>
+              <CardTitle className="text-lg font-medium">Wallet Info</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Type</span>
-                  <span>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Type</span>
+                  <span className="text-sm font-medium">
                     {wallet.type === "custodial"
                       ? "Custodial Wallet"
                       : wallet.type === "mpc"
@@ -191,42 +223,42 @@ export default function WalletDetailsPage() {
                         : "Smart Contract Wallet"}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Created</span>
-                  <span>{wallet.createdAt}</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Created</span>
+                  <span className="text-sm font-medium">{wallet.createdAt}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Network</span>
-                  <span>{wallet.blockchain}</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Network</span>
+                  <span className="text-sm font-medium">{wallet.blockchain}</span>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        <Card>
+        <Card className="border-none shadow-sm">
           <CardHeader>
-            <CardTitle>Assets</CardTitle>
-            <CardDescription>Tokens in this wallet</CardDescription>
+            <CardTitle className="text-lg font-medium">Assets</CardTitle>
+            <CardDescription className="text-sm">Tokens in this wallet</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="border rounded-lg overflow-hidden">
+            <div className="overflow-x-auto rounded-md border">
               <table className="w-full">
                 <thead>
                   <tr className="bg-muted/50">
-                    <th className="text-left p-3 text-sm font-medium">Token</th>
-                    <th className="text-right p-3 text-sm font-medium">Balance</th>
-                    <th className="text-right p-3 text-sm font-medium">Value</th>
-                    <th className="text-right p-3 text-sm font-medium">Actions</th>
+                    <th className="py-3 pl-4 text-left text-sm font-medium">Token</th>
+                    <th className="py-3 text-right text-sm font-medium">Balance</th>
+                    <th className="py-3 text-right text-sm font-medium">Value</th>
+                    <th className="py-3 pr-4 text-right text-sm font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {wallet.tokens.map((token) => (
                     <tr key={token.symbol} className="border-t">
-                      <td className="p-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
-                            {token.symbol.substring(0, 1)}
+                      <td className="py-3 pl-4">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-sm font-medium">
+                            {token.symbol[0]}
                           </div>
                           <div>
                             <div className="font-medium">{token.name}</div>
@@ -234,15 +266,30 @@ export default function WalletDetailsPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="p-3 text-right">{hideBalance ? "••••••" : token.balance}</td>
-                      <td className="p-3 text-right">{hideBalance ? "••••••" : token.value}</td>
-                      <td className="p-3 text-right">
+                      <td className="py-3 text-right text-sm">
+                        {hideBalance ? "••••••" : token.balance}
+                      </td>
+                      <td className="py-3 text-right text-sm">{hideBalance ? "••••••" : token.value}</td>
+                      <td className="py-3 pr-4 text-right">
                         <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="sm" onClick={() => setShowSendDialog(true)}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-sm"
+                            onClick={() => {
+                              setSelectedToken(token.symbol)
+                              setShowSendDialog(true)
+                            }}
+                          >
                             <ArrowUp className="mr-1 h-3 w-3" />
                             Send
                           </Button>
-                          <Button variant="ghost" size="sm" onClick={() => setShowReceiveDialog(true)}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-sm"
+                            onClick={() => setShowReceiveDialog(true)}
+                          >
                             <ArrowDown className="mr-1 h-3 w-3" />
                             Receive
                           </Button>
@@ -256,19 +303,25 @@ export default function WalletDetailsPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-none shadow-sm">
           <CardHeader>
-            <CardTitle>Transaction History</CardTitle>
-            <CardDescription>Recent transactions for this wallet</CardDescription>
+            <CardTitle className="text-lg font-medium">Transaction History</CardTitle>
+            <CardDescription className="text-sm">Recent transactions for this wallet</CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="all">
-              <TabsList>
-                <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="sent">Sent</TabsTrigger>
-                <TabsTrigger value="received">Received</TabsTrigger>
+            <Tabs defaultValue="all" className="w-full">
+              <TabsList className="grid w-full max-w-md grid-cols-3">
+                <TabsTrigger value="all" className="text-sm">
+                  All
+                </TabsTrigger>
+                <TabsTrigger value="sent" className="text-sm">
+                  Sent
+                </TabsTrigger>
+                <TabsTrigger value="received" className="text-sm">
+                  Received
+                </TabsTrigger>
               </TabsList>
-              <div className="mt-4">
+              <div className="mt-6">
                 <WalletTransactionList />
               </div>
             </Tabs>
@@ -282,36 +335,59 @@ export default function WalletDetailsPage() {
               <DialogTitle>Send Assets</DialogTitle>
               <DialogDescription>Send tokens from your wallet to another address</DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 py-4">
+            <div className="space-y-6 py-4">
               <div className="space-y-2">
                 <Label htmlFor="token">Token</Label>
-                <select
-                  id="token"
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {wallet.tokens.map((token) => (
-                    <option key={token.symbol} value={token.symbol}>
-                      {token.name} ({token.symbol}) - Balance: {token.balance}
-                    </option>
-                  ))}
-                </select>
+                <Select value={selectedToken} onValueChange={setSelectedToken}>
+                  <SelectTrigger id="token" className="h-10">
+                    <SelectValue placeholder="Select token" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {wallet.tokens.map((token) => (
+                      <SelectItem key={token.symbol} value={token.symbol}>
+                        {token.name} ({token.symbol}) - Balance: {token.balance}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="recipient">Recipient Address</Label>
-                <Input id="recipient" placeholder="Enter recipient wallet address" />
+                <Input
+                  id="recipient"
+                  placeholder="Enter recipient wallet address"
+                  value={recipientAddress}
+                  onChange={(e) => setRecipientAddress(e.target.value)}
+                />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="amount">Amount</Label>
                 <div className="flex gap-2">
-                  <Input id="amount" type="number" placeholder="0.00" className="flex-1" />
-                  <Button variant="outline" className="w-20">
+                  <Input
+                    id="amount"
+                    type="number"
+                    placeholder="0.00"
+                    className="flex-1"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                  />
+                  <Button
+                    variant="outline"
+                    className="h-10 w-20"
+                    onClick={() => {
+                      const token = wallet.tokens.find((t) => t.symbol === selectedToken)
+                      if (token) setAmount(token.balance)
+                    }}
+                  >
                     Max
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Available: {wallet.tokens[0].balance} {wallet.tokens[0].symbol}
+                  Available:{" "}
+                  {wallet.tokens.find((t) => t.symbol === selectedToken)?.balance || "0"}{" "}
+                  {selectedToken}
                 </p>
               </div>
 
@@ -322,15 +398,27 @@ export default function WalletDetailsPage() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Total Amount</span>
-                  <span>$0.00</span>
+                  <span>
+                    {amount ? `$${(parseFloat(amount) * 1.01).toFixed(2)}` : "$0.00"}
+                  </span>
                 </div>
               </div>
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowSendDialog(false)}>
+              <Button
+                variant="outline"
+                className="h-10"
+                onClick={() => {
+                  setShowSendDialog(false)
+                  setRecipientAddress("")
+                  setAmount("")
+                }}
+              >
                 Cancel
               </Button>
-              <Button>Send</Button>
+              <Button className="h-10" onClick={handleSend} disabled={!amount || !recipientAddress}>
+                Send
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -342,23 +430,37 @@ export default function WalletDetailsPage() {
               <DialogTitle>Receive Assets</DialogTitle>
               <DialogDescription>Share your address to receive tokens</DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="flex flex-col items-center justify-center">
-                <div className="bg-white p-4 rounded-lg mb-4">
-                  <img src="/qr-code-placeholder.png" alt="QR Code" width={200} height={200} />
+            <div className="space-y-6 py-4">
+              <div className="flex flex-col items-center">
+                <div className="mb-4 rounded-lg bg-white p-4 shadow-sm">
+                  <img
+                    src="/qr-code-placeholder.png"
+                    alt="QR Code"
+                    width={180}
+                    height={180}
+                    className="h-[180px] w-[180px]"
+                  />
                 </div>
-                <p className="text-sm text-center mb-4">Scan this QR code to get the wallet address</p>
+                <p className="text-center text-sm text-muted-foreground">
+                  Scan this QR code to get the wallet address
+                </p>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="wallet-address">Wallet Address</Label>
-                <div className="flex">
+                <div className="flex gap-2">
                   <Input id="wallet-address" value={wallet.address} readOnly className="flex-1" />
-                  <Button variant="outline" className="ml-2" onClick={() => copyToClipboard(wallet.address)}>
+                  <Button
+                    variant="outline"
+                    className="h-10 w-10"
+                    onClick={() => copyToClipboard(wallet.address)}
+                  >
                     <Copy className="h-4 w-4" />
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground">Only send {wallet.blockchain} assets to this address</p>
+                <p className="text-xs text-muted-foreground">
+                  Only send {wallet.blockchain} assets to this address
+                </p>
               </div>
             </div>
           </DialogContent>
@@ -371,17 +473,30 @@ export default function WalletDetailsPage() {
               <DialogTitle>Edit Wallet</DialogTitle>
               <DialogDescription>Update your wallet details</DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 py-4">
+            <div className="space-y-6 py-4">
               <div className="space-y-2">
                 <Label htmlFor="edit-wallet-name">Wallet Name</Label>
-                <Input id="edit-wallet-name" defaultValue={wallet.name} />
+                <Input
+                  id="edit-wallet-name"
+                  value={walletName}
+                  onChange={(e) => setWalletName(e.target.value)}
+                />
               </div>
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+              <Button
+                variant="outline"
+                className="h-10"
+                onClick={() => {
+                  setShowEditDialog(false)
+                  setWalletName(wallet.name)
+                }}
+              >
                 Cancel
               </Button>
-              <Button>Save Changes</Button>
+              <Button className="h-10" onClick={handleEdit} disabled={!walletName}>
+                Save Changes
+              </Button>
             </div>
           </DialogContent>
         </Dialog>

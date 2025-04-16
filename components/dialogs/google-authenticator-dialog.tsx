@@ -28,10 +28,6 @@ export function GoogleAuthenticatorDialog({ open, onOpenChange }: GoogleAuthenti
         <DialogHeader>
           <DialogTitle className="text-xl">Set Up Google Authenticator</DialogTitle>
           <DialogDescription>Follow these steps to set up Google Authenticator for your account</DialogDescription>
-          <Button variant="ghost" size="icon" className="absolute right-4 top-4" onClick={() => onOpenChange(false)}>
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </Button>
         </DialogHeader>
         <div className="space-y-8 py-4">
           <div className="space-y-4">

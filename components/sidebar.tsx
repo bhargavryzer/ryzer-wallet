@@ -145,7 +145,7 @@ export function Sidebar({ className }: SidebarProps) {
   return (
     <div
       className={cn(
-        "relative flex h-screen flex-col border-r bg-[#7B5CF0] text-white transition-all duration-300 ease-in-out z-20",
+        "relative flex h-screen flex-col border-r bg-gradient-to-b from-[#2C2C2C] via-[#232323] to-[#1A1A1A] text-white transition-all duration-300 ease-in-out z-20 shadow-md",
         isCollapsed ? "w-[70px]" : "w-[260px]",
         className,
       )}
@@ -156,7 +156,7 @@ export function Sidebar({ className }: SidebarProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
-        className="flex h-16 items-center justify-between px-6 border-b border-[#6B4CE0]"
+        className="flex h-16 items-center justify-between px-6 border-b border-[#3A3A3A]"
       >
         <Link href="/" className="flex items-center gap-3 overflow-hidden">
           <div className="relative h-8 w-8 shrink-0 rounded-full bg-white">
@@ -174,7 +174,7 @@ export function Sidebar({ className }: SidebarProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-white hover:bg-[#6B4CE0]"
+          className="h-8 w-8 text-white hover:bg-white hover:text-black transition-colors duration-200"
           onClick={toggle}
           aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
@@ -183,17 +183,17 @@ export function Sidebar({ className }: SidebarProps) {
       </motion.div>
 
       {/* Scrollable Content */}
-      <ScrollArea className="flex-1 py-4">
+      <ScrollArea className="flex-1 py-6">
         <AnimatePresence mode="wait" initial={false}>
           <motion.nav
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 10 }}
             transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="flex flex-col gap-4 px-4"
+            className="flex flex-col gap-5 px-4"
           >
             <div className="space-y-1">
-              <nav className="flex flex-col gap-3">
+              <nav className="flex flex-col gap-4">
                 {navItems.map((item) => {
                   // Special handling for Wallets with children
                   if (item.label === "Wallets" && item.children) {
@@ -206,8 +206,8 @@ export function Sidebar({ className }: SidebarProps) {
                                 <Link
                                   href={item.href}
                                   className={cn(
-                                    "flex h-10 items-center justify-center rounded-lg px-2 py-2 text-sm font-medium transition-colors",
-                                    isWalletsActive ? "bg-[#6B4CE0]" : "hover:bg-[#6B4CE0]",
+                                    "flex h-10 items-center justify-center rounded-lg px-2 py-2 text-sm font-medium transition-colors duration-200",
+                                    isWalletsActive ? "bg-[#3A3A3A]" : "hover:bg-white hover:text-black",
                                   )}
                                   aria-current={isWalletsActive ? "page" : undefined}
                                 >
@@ -222,8 +222,8 @@ export function Sidebar({ className }: SidebarProps) {
                           <Collapsible open={isWalletsOpen} onOpenChange={setIsWalletsOpen}>
                             <CollapsibleTrigger
                               className={cn(
-                                "flex h-10 items-center gap-3 w-full rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-[#6B4CE0]/80",
-                                isWalletsActive ? "bg-[#6B4CE0]" : "hover:bg-[#6B4CE0]/80",
+                                "flex h-10 items-center gap-3 w-full rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200 hover:bg-white hover:text-black",
+                                isWalletsActive ? "bg-[#3A3A3A]" : "",
                               )}
                             >
                               <Wallet size={18} />
@@ -236,20 +236,20 @@ export function Sidebar({ className }: SidebarProps) {
                                 )}
                               />
                             </CollapsibleTrigger>
-                            <CollapsibleContent className="space-y-1 px-2 mt-2 overflow-hidden">
-                              <div className="py-1">
+                            <CollapsibleContent className="space-y-2 px-2 mt-3 overflow-hidden">
+                              <div className="py-2 space-y-2">
                                 {item.children.map((wallet) => (
                                   <Link
                                     key={wallet.href}
                                     href={wallet.href}
                                     className={cn(
-                                      "flex justify-between items-center h-9 rounded-md px-3 py-2 text-sm transition-colors",
+                                      "flex justify-between items-center h-10 rounded-md px-3 py-2 text-sm transition-colors duration-200",
                                       pathname === wallet.href
-                                        ? "bg-[#6B4CE0]"
-                                        : "hover:bg-[#6B4CE0]/80",
+                                        ? "bg-[#3A3A3A]"
+                                        : "hover:bg-white hover:text-black",
                                     )}
                                   >
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-3">
                                       {wallet.icon ? <wallet.icon size={16} /> : null}
                                       <span>{wallet.label}</span>
                                     </div>
@@ -273,7 +273,7 @@ export function Sidebar({ className }: SidebarProps) {
                               <button
                                 onClick={() => console.log("Logout clicked")}
                                 className={cn(
-                                  "flex h-10 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-[#6B4CE0]/80",
+                                  "flex h-10 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200 hover:bg-white hover:text-black",
                                   isCollapsed,
                                   isCollapsed && "justify-center px-3",
                                 )}
@@ -314,8 +314,8 @@ export function Sidebar({ className }: SidebarProps) {
                               <Link
                                 href={item.href}
                                 className={cn(
-                                  "flex h-10 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-[#6B4CE0]/80",
-                                  item.active ? "bg-[#6B4CE0]" : "hover:bg-[#6B4CE0]/80",
+                                  "flex h-10 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200 hover:bg-white hover:text-black",
+                                  item.active ? "bg-[#3A3A3A]" : "",
                                   isCollapsed && "justify-center px-3",
                                 )}
                                 aria-current={item.active ? "page" : undefined}
@@ -342,7 +342,7 @@ export function Sidebar({ className }: SidebarProps) {
                       </TooltipProvider>
                       {/* Add divider below Security */}
                       {item.label === "Security" && !isCollapsed && (
-                        <hr className="my-2 border-[#6B4CE0]" />
+                        <hr className="my-3 border-[#3A3A3A]" />
                       )}
                     </div>
                   )
