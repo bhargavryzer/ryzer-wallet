@@ -1,0 +1,8 @@
+{
+  "/developer/page": "app/developer/page.js",
+  "/address-book/page": "app/address-book/page.js",
+  "/apps/page": "app/apps/page.js",
+  "/transaction-history/page": "app/transaction-history/page.js",
+  "/transaction-policies/page": "app/transaction-policies/page.js",
+  "/security/page": "app/security/page.js"
+}
