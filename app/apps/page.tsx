@@ -12,21 +12,20 @@ interface AppCardProps {
 // Add the AppCard component implementation
 function AppCard({ name, description, icon, tags }: AppCardProps) {
   return (
-    <Card className="overflow-hidden transition-all hover:shadow-md">
-      <CardContent className="p-6">
-        <div className="flex items-start gap-4">
-          <div className="h-15 w-15 shrink-0 rounded-md overflow-hidden">
+    <Card className="overflow-hidden transition-all hover:shadow-md h-full border">
+      <CardContent className="p-6 flex flex-col h-full">
+        <div className="flex items-start gap-4 mb-4">
+          <div className="h-12 w-12 shrink-0 rounded-full overflow-hidden bg-gray-100">
             <img src={icon || "/placeholder.svg"} alt={`${name} icon`} className="h-full w-full object-cover" />
           </div>
-          <div className="space-y-2">
+          <div>
             <h3 className="font-semibold text-lg">{name}</h3>
-            <p className="text-sm text-muted-foreground">{description}</p>
             {tags && tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
+              <div className="flex flex-wrap gap-1 mt-1">
                 {tags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700"
+                    className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700"
                   >
                     {tag}
                   </span>
@@ -34,6 +33,12 @@ function AppCard({ name, description, icon, tags }: AppCardProps) {
               </div>
             )}
           </div>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4">{description}</p>
+        <div className="mt-auto">
+          <button className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+            View Details
+          </button>
         </div>
       </CardContent>
     </Card>
