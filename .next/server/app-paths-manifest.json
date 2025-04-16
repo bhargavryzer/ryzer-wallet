@@ -1,0 +1,9 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/wallets/custodial/page": "app/wallets/custodial/page.js",
+  "/developer/page": "app/developer/page.js",
+  "/wallets/mpc/page": "app/wallets/mpc/page.js",
+  "/wallets/smart-contract/page": "app/wallets/smart-contract/page.js",
+  "/transaction-policies/page": "app/transaction-policies/page.js"
+}
