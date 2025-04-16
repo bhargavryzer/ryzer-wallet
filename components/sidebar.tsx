@@ -13,14 +13,14 @@ import {
   ChevronLeft,
   ChevronRight,
   CreditCard,
-  History,
-  Home,
-  Layers,
-  Shield,
   Wallet,
   Code,
   LayoutGrid,
   BookMarked,
+  Shield,
+  Layers,
+  Home,
+  History
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -106,7 +106,7 @@ export function Sidebar({ className }: SidebarProps) {
     },
     {
       label: "Transaction History",
-      icon: History,
+      icon : History,
       href: "/transaction-history",
       active: pathname.startsWith("/transaction-history"),
     },
