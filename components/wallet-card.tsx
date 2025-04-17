@@ -36,8 +36,6 @@ export function WalletCard({ name, type, balance, tokens, address }: WalletCardP
         return "MPC Wallet"
       case "smart":
         return "Smart Contract Wallet"
-      case "exchange":
-        return "Exchange Wallet"
       default:
         return "Wallet"
     }
