@@ -1,4 +1,5 @@
 "use client"
+
 import { X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -13,16 +14,14 @@ export function SecurityVerificationDialog({ open, onOpenChange }: SecurityVerif
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-xl">Security Verification</DialogTitle>
-          <DialogDescription>Please choose your multi-factor authentication method</DialogDescription>
-          <Button variant="ghost" size="icon" className="absolute right-4 top-4" onClick={() => onOpenChange(false)}>
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </Button>
+        <DialogHeader className="relative">
+          <DialogTitle className="text-lg font-semibold">Security Verification</DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Please choose your multi-factor authentication method
+          </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 py-4">
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800 flex items-start gap-2">
+        <div className="space-y-6 pt-4">
+          <div className="flex items-start gap-3 rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-yellow-800">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
@@ -31,7 +30,13 @@ export function SecurityVerificationDialog({ open, onOpenChange }: SecurityVerif
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
-              <path d="M12 16V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d="M12 16V12"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
               <path
                 d="M12 8H12.01"
                 stroke="currentColor"
@@ -40,14 +45,16 @@ export function SecurityVerificationDialog({ open, onOpenChange }: SecurityVerif
                 strokeLinejoin="round"
               />
             </svg>
-            <p className="text-sm">For the security of your account, please set up at least one MFA method.</p>
+            <p className="text-sm">
+              For the security of your account, please set up at least one MFA method.
+            </p>
           </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between p-4 border rounded-lg">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between rounded-lg border p-4">
               <div className="flex items-center gap-4">
-                <div className="bg-blue-100 p-2 rounded-lg">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <div className="rounded-md bg-blue-100 p-2">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                       d="M20.91 11.12C20.91 10.56 20.86 10.01 20.75 9.47H12V13.24H17.07C16.87 14.33 16.22 15.28 15.26 15.92V18.35H18.25C20.02 16.7 20.91 14.13 20.91 11.12Z"
                       fill="#4285F4"
@@ -66,17 +73,17 @@ export function SecurityVerificationDialog({ open, onOpenChange }: SecurityVerif
                     />
                   </svg>
                 </div>
-                <div>
-                  <div className="font-medium">Google Authenticator</div>
-                </div>
+                <div className="text-sm font-medium">Google Authenticator</div>
               </div>
-              <Button>Set Up</Button>
+              <Button variant="outline" className="h-9">
+                Set Up
+              </Button>
             </div>
 
-            <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="flex items-center justify-between rounded-lg border p-4">
               <div className="flex items-center gap-4">
-                <div className="bg-blue-100 p-2 rounded-lg">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <div className="rounded-md bg-blue-100 p-2">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                       d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
                       fill="#6366F1"
@@ -90,17 +97,17 @@ export function SecurityVerificationDialog({ open, onOpenChange }: SecurityVerif
                     />
                   </svg>
                 </div>
-                <div>
-                  <div className="font-medium">Security Key</div>
-                </div>
+                <div className="text-sm font-medium">Security Key</div>
               </div>
-              <Button>Set Up</Button>
+              <Button variant="outline" className="h-9">
+                Set Up
+              </Button>
             </div>
 
-            <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="flex items-center justify-between rounded-lg border p-4">
               <div className="flex items-center gap-4">
-                <div className="bg-blue-100 p-2 rounded-lg">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <div className="rounded-md bg-blue-100 p-2">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                       d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
                       fill="#4285F4"
@@ -112,11 +119,11 @@ export function SecurityVerificationDialog({ open, onOpenChange }: SecurityVerif
                     <path d="M12 12C9.79086 12 8 13.7909 8 16H16C16 13.7909 14.2091 12 12 12Z" fill="white" />
                   </svg>
                 </div>
-                <div>
-                  <div className="font-medium">Ryzer Guard</div>
-                </div>
+                <div className="text-sm font-medium">Ryzer Guard</div>
               </div>
-              <Button>Set Up</Button>
+              <Button variant="outline" className="h-9">
+                Set Up
+              </Button>
             </div>
           </div>
         </div>
