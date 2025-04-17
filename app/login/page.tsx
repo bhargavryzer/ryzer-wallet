@@ -534,76 +534,76 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Left Panel (Hidden on Mobile) */}
-<div className="hidden lg:flex lg:w-1/2 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900/90">
-  <div className="flex flex-col justify-center px-12 py-16 text-white max-w-2xl space-y-6">
-    <h1 className="text-4xl font-bold tracking-tight leading-tight">
-      Powering Real Estate Tokenization with Scalable Wallet-as-a-Service
-    </h1>
-    <p className="text-lg leading-relaxed">
-      Unlock the potential of real estate tokenization with our robust Ryzer wallet, designed for security, scalability, and seamless management of digital assets across the entire investment lifecycle.
-    </p>
-    <ul className="space-y-3 text-base">
-      <li className="flex items-center">
-        <svg
-          className="w-6 h-6 mr-2 text-green-400"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M5 13l4 4L19 7"
-          />
-        </svg>
-        Bank-grade security
-      </li>
-      <li className="flex items-center">
-        <svg
-          className="w-6 h-6 mr-2 text-green-400"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M5 13l4 4L19 7"
-          />
-        </svg>
-        Regulatory compliance
-      </li>
-      <li className="flex items-center">
-        <svg
-          className="w-6 h-6 mr-2 text-green-400"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M5 13l4 4L19 7"
-          />
-        </svg>
-        Seamless integration
-      </li>
-    </ul>
-    <div>
-      <Image
-        src="/dashboard-preview.png"
-        alt="Dashboard Preview"
-        width={500}
-        height={400}
-        loading="lazy"
-        className="rounded-lg border border-white/10 shadow-xl hover:shadow-2xl transition-shadow"
-      />
-    </div>
-  </div>
-</div>
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900/90">
+        <div className="flex flex-col justify-center px-12 py-16 text-white max-w-2xl space-y-6">
+          <h1 className="text-4xl font-bold tracking-tight leading-tight">
+            Powering Real Estate Tokenization with Scalable Wallet-as-a-Service
+          </h1>
+          <p className="text-lg leading-relaxed">
+            Unlock the potential of real estate tokenization with our robust Ryzer wallet, designed for security, scalability, and seamless management of digital assets across the entire investment lifecycle.
+          </p>
+          <ul className="space-y-3 text-base">
+            <li className="flex items-center">
+              <svg
+                className="w-6 h-6 mr-2 text-green-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              Bank-grade security
+            </li>
+            <li className="flex items-center">
+              <svg
+                className="w-6 h-6 mr-2 text-green-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              Regulatory compliance
+            </li>
+            <li className="flex items-center">
+              <svg
+                className="w-6 h-6 mr-2 text-green-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              Seamless integration
+            </li>
+          </ul>
+          <div>
+            <Image
+              src="/loginimg.webp"
+              alt="Dashboard Preview"
+              width={500}
+              height={400}
+              loading="lazy"
+              className="rounded-lg border border-white/10 shadow-xl hover:shadow-2xl transition-shadow"
+            />
+          </div>
+        </div>
+      </div>
 
       {/* Right Panel (Login Form) */}
       <div className="flex w-full lg:w-1/2 items-center justify-center p-6 sm:p-8">
@@ -611,16 +611,16 @@ export default function LoginPage() {
           {/* Header */}
           <div className="mb-8 flex items-center justify-between">
             <div className="flex items-center">
-              <div className="relative mr-3 h-12 w-12">
+              <div className="relative ">
                 <Image
-                  src="/logo.png"
+                  src="/Ryzerlogo.svg"
                   alt="Ryzer Logo"
-                  fill
-                  priority
-                  className="object-contain"
+                  width={60}
+                  height={200} // Add a height value here
+                  
+                  // className="object-contain"
                 />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">Ryzer Wallet</h2>
             </div>
             <div className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 shadow-sm hover:shadow">
               Production
