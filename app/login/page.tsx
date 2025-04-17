@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react"
+import dynamic from "next/dynamic"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -39,121 +40,173 @@ interface EmailLoginFormProps {
   onSubmit: (email: string, password: string) => Promise<void>
 }
 
-function EmailLoginForm({ isLoading, onSubmit }: EmailLoginFormProps) {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [emailError, setEmailError] = useState("")
-  const [passwordError, setPasswordError] = useState("")
-
-  const validateEmail = (value: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return emailRegex.test(value) ? "" : "Please enter a valid email address"
-  }
-
-  const validatePassword = (value: string) => {
-    if (!value) return "Password is required"
-    if (value.length < 8) return "Password must be at least 8 characters"
-    return ""
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const emailValidation = validateEmail(email)
-    const passwordValidation = validatePassword(password)
-
-    setEmailError(emailValidation)
-    setPasswordError(passwordValidation)
-
-    if (!emailValidation && !passwordValidation) {
-      await onSubmit(email, password)
-    }
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+// Lazy load components with consistent loading skeletons
+const EmailLoginForm = dynamic(() => import('@/components/login/email-login-form').then(mod => mod.EmailLoginForm), {
+  loading: () => (
+    <div className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-          Email
-        </Label>
-        <Input
-          id="email"
-          type="email"
-          placeholder="name@example.com"
-          value={email}
-          onChange={(e) => {
-            setEmail(e.target.value)
-            setEmailError(validateEmail(e.target.value))
-          }}
-          required
-          aria-invalid={!!emailError}
-          aria-describedby={emailError ? "email-error" : undefined}
-          className="h-12 rounded-lg border-gray-300 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
-        />
-        {emailError && (
-          <p id="email-error" className="text-xs text-red-600">
-            {emailError}
-          </p>
-        )}
+        <div className="h-5 w-16 animate-pulse rounded bg-gray-200"></div>
+        <div className="h-12 w-full animate-pulse rounded-lg bg-gray-200"></div>
       </div>
-
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="password" className="text-sm font-medium text-gray-700">
-            Password
-          </Label>
-          <Link
-            href="/forgot-password"
-            className="text-xs text-purple-600 hover:underline focus:outline-none focus:ring-2 focus:ring-purple-500"
-          >
-            Forgot password?
-          </Link>
+        <div className="flex justify-between">
+          <div className="h-5 w-16 animate-pulse rounded bg-gray-200"></div>
+          <div className="h-5 w-24 animate-pulse rounded bg-gray-200"></div>
         </div>
-        <div className="relative">
-          <Input
-            id="password"
-            type={showPassword ? "text" : "password"}
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value)
-              setPasswordError(validatePassword(e.target.value))
-            }}
-            required
-            aria-invalid={!!passwordError}
-            aria-describedby={passwordError ? "password-error" : undefined}
-            className="h-12 rounded-lg border-gray-300 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
-          />
-          <button
-            type="button"
-            aria-label={showPassword ? "Hide password" : "Show password"}
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-          >
-            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-          </button>
-        </div>
-        {passwordError && (
-          <p id="password-error" className="text-xs text-red-600">
-            {passwordError}
-          </p>
-        )}
+        <div className="h-12 w-full animate-pulse rounded-lg bg-gray-200"></div>
       </div>
+      <div className="h-12 w-full animate-pulse rounded-lg bg-gray-200"></div>
+    </div>
+  ),
+  ssr: false
+})
 
-      <Button
-        type="submit"
-        disabled={isLoading}
-        className="h-12 w-full rounded-lg bg-purple-600 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-50 focus:ring-2 focus:ring-purple-500"
-      >
-        {isLoading ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          "Log In"
-        )}
-      </Button>
-    </form>
-  )
-}
+const RyzerGuardLogin = dynamic(() => import('@/components/login/ryzer-guard-login').then(mod => mod.RyzerGuardLogin), {
+  loading: () => (
+    <div className="space-y-6 text-center">
+      <div className="space-y-1">
+        <div className="h-6 w-32 mx-auto animate-pulse rounded bg-gray-200"></div>
+        <div className="h-5 w-64 mx-auto animate-pulse rounded bg-gray-200"></div>
+      </div>
+      <div className="h-40 w-40 mx-auto animate-pulse rounded-lg bg-gray-200"></div>
+      <div className="space-y-2">
+        <div className="h-5 w-24 mx-auto animate-pulse rounded bg-gray-200"></div>
+        <div className="h-12 w-full animate-pulse rounded-lg bg-gray-200"></div>
+      </div>
+      <div className="h-12 w-full animate-pulse rounded-lg bg-gray-200"></div>
+    </div>
+  ),
+  ssr: false
+})
+
+const PasskeyLogin = dynamic(() => import('@/components/login/passkey-login').then(mod => mod.PasskeyLogin), {
+  loading: () => (
+    <div className="space-y-6 text-center">
+      <div className="h-12 w-12 mx-auto animate-pulse rounded-full bg-gray-200"></div>
+      <div className="h-6 w-32 mx-auto animate-pulse rounded bg-gray-200"></div>
+      <div className="h-5 w-64 mx-auto animate-pulse rounded bg-gray-200"></div>
+      <div className="h-12 w-full animate-pulse rounded-lg bg-gray-200"></div>
+      <div className="h-4 w-32 mx-auto animate-pulse rounded bg-gray-200"></div>
+    </div>
+  ),
+  ssr: false
+})
+
+// function EmailLoginForm({ isLoading, onSubmit }: EmailLoginFormProps) {
+//   const [email, setEmail] = useState("")
+//   const [password, setPassword] = useState("")
+//   const [showPassword, setShowPassword] = useState(false)
+//   const [emailError, setEmailError] = useState("")
+//   const [passwordError, setPasswordError] = useState("")
+
+//   const validateEmail = (value: string) => {
+//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+//     return emailRegex.test(value) ? "" : "Please enter a valid email address"
+//   }
+
+//   const validatePassword = (value: string) => {
+//     if (!value) return "Password is required"
+//     if (value.length < 8) return "Password must be at least 8 characters"
+//     return ""
+//   }
+
+//   const handleSubmit = async (e: React.FormEvent) => {
+//     e.preventDefault()
+//     const emailValidation = validateEmail(email)
+//     const passwordValidation = validatePassword(password)
+
+//     setEmailError(emailValidation)
+//     setPasswordError(passwordValidation)
+
+//     if (!emailValidation && !passwordValidation) {
+//       await onSubmit(email, password)
+//     }
+//   }
+
+//   return (
+//     <form onSubmit={handleSubmit} className="space-y-6">
+//       <div className="space-y-2">
+//         <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+//           Email
+//         </Label>
+//         <Input
+//           id="email"
+//           type="email"
+//           placeholder="name@example.com"
+//           value={email}
+//           onChange={(e) => {
+//             setEmail(e.target.value)
+//             setEmailError(validateEmail(e.target.value))
+//           }}
+//           required
+//           aria-invalid={!!emailError}
+//           aria-describedby={emailError ? "email-error" : undefined}
+//           className="h-12 rounded-lg border-gray-300 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+//         />
+//         {emailError && (
+//           <p id="email-error" className="text-xs text-red-600">
+//             {emailError}
+//           </p>
+//         )}
+//       </div>
+
+//       <div className="space-y-2">
+//         <div className="flex items-center justify-between">
+//           <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+//             Password
+//           </Label>
+//           <Link
+//             href="/forgot-password"
+//             className="text-xs text-purple-600 hover:underline focus:outline-none focus:ring-2 focus:ring-purple-500"
+//           >
+//             Forgot password?
+//           </Link>
+//         </div>
+//         <div className="relative">
+//           <Input
+//             id="password"
+//             type={showPassword ? "text" : "password"}
+//             placeholder="••••••••"
+//             value={password}
+//             onChange={(e) => {
+//               setPassword(e.target.value)
+//               setPasswordError(validatePassword(e.target.value))
+//             }}
+//             required
+//             aria-invalid={!!passwordError}
+//             aria-describedby={passwordError ? "password-error" : undefined}
+//             className="h-12 rounded-lg border-gray-300 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+//           />
+//           <button
+//             type="button"
+//             aria-label={showPassword ? "Hide password" : "Show password"}
+//             onClick={() => setShowPassword(!showPassword)}
+//             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+//           >
+//             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+//           </button>
+//         </div>
+//         {passwordError && (
+//           <p id="password-error" className="text-xs text-red-600">
+//             {passwordError}
+//           </p>
+//         )}
+//       </div>
+
+//       <Button
+//         type="submit"
+//         disabled={isLoading}
+//         className="h-12 w-full rounded-lg bg-purple-600 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-50 focus:ring-2 focus:ring-purple-500"
+//       >
+//         {isLoading ? (
+//           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+//         ) : (
+//           "Log In"
+//         )}
+//       </Button>
+//     </form>
+//   )
+// }
 
 // Ryzer Guard Login Component
 interface RyzerGuardLoginProps {
@@ -161,87 +214,87 @@ interface RyzerGuardLoginProps {
   onSubmit: (code: string) => Promise<void>
 }
 
-function RyzerGuardLogin({ isLoading, onSubmit }: RyzerGuardLoginProps) {
-  const [code, setCode] = useState("")
-  const [codeError, setCodeError] = useState("")
+// function RyzerGuardLogin({ isLoading, onSubmit }: RyzerGuardLoginProps) {
+//   const [code, setCode] = useState("")
+//   const [codeError, setCodeError] = useState("")
 
-  const validateCode = (value: string) => {
-    const codeRegex = /^\d{6}$/
-    return codeRegex.test(value) ? "" : "Please enter a valid 6-digit code"
-  }
+//   const validateCode = (value: string) => {
+//     const codeRegex = /^\d{6}$/
+//     return codeRegex.test(value) ? "" : "Please enter a valid 6-digit code"
+//   }
 
-  const handleSubmit = async () => {
-    const codeValidation = validateCode(code)
-    setCodeError(codeValidation)
-    if (!codeValidation) {
-      await onSubmit(code)
-    }
-  }
+//   const handleSubmit = async () => {
+//     const codeValidation = validateCode(code)
+//     setCodeError(codeValidation)
+//     if (!codeValidation) {
+//       await onSubmit(code)
+//     }
+//   }
 
-  return (
-    <div className="space-y-6 text-center">
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900">Ryzer Guard</h3>
-        <p className="mt-1 text-sm text-gray-500">
-          Scan the QR code or enter the code from the Ryzer Guard app.
-        </p>
-      </div>
-      <div className="flex justify-center rounded-lg bg-gray-100 p-4">
-        <Image
-          src="/qr-code-placeholder.png"
-          alt="Ryzer Guard QR Code"
-          width={140}
-          height={140}
-          className="rounded-md"
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="guard-code" className="text-sm font-medium text-gray-700">
-          Guard Code
-        </Label>
-        <Input
-          id="guard-code"
-          placeholder="Enter 6-digit code"
-          value={code}
-          onChange={(e) => {
-            setCode(e.target.value)
-            setCodeError(validateCode(e.target.value))
-          }}
-          maxLength={RYZER_GUARD_CODE_LENGTH}
-          inputMode="numeric"
-          aria-invalid={!!codeError}
-          aria-describedby={codeError ? "guard-error" : undefined}
-          className="h-12 rounded-lg border-gray-300 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
-        />
-        {codeError && (
-          <p id="guard-error" className="text-xs text-red-600">
-            {codeError}
-          </p>
-        )}
-      </div>
-      <Button
-        onClick={handleSubmit}
-        disabled={isLoading}
-        className="h-12 w-full rounded-lg bg-purple-600 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-50 focus:ring-2 focus:ring-purple-500"
-      >
-        {isLoading ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          "Log In"
-        )}
-      </Button>
-      <p className="text-xs text-gray-500">
-        Need the app?{" "}
-        <Link
-          href="/download-ryzer-guard"
-          className="text-purple-600 hover:underline focus:outline-none focus:ring-2 focus:ring-purple-500"
-        >
-          Download Ryzer Guard
-        </Link>
-      </p>
-    </div>
-  )
-}
+//   return (
+//     <div className="space-y-6 text-center">
+//       <div>
+//         <h3 className="text-lg font-semibold text-gray-900">Ryzer Guard</h3>
+//         <p className="mt-1 text-sm text-gray-500">
+//           Scan the QR code or enter the code from the Ryzer Guard app.
+//         </p>
+//       </div>
+//       <div className="flex justify-center rounded-lg bg-gray-100 p-4">
+//         <Image
+//           src="/qr-code-placeholder.png"
+//           alt="Ryzer Guard QR Code"
+//           width={140}
+//           height={140}
+//           className="rounded-md"
+//         />
+//       </div>
+//       <div className="space-y-2">
+//         <Label htmlFor="guard-code" className="text-sm font-medium text-gray-700">
+//           Guard Code
+//         </Label>
+//         <Input
+//           id="guard-code"
+//           placeholder="Enter 6-digit code"
+//           value={code}
+//           onChange={(e) => {
+//             setCode(e.target.value)
+//             setCodeError(validateCode(e.target.value))
+//           }}
+//           maxLength={RYZER_GUARD_CODE_LENGTH}
+//           inputMode="numeric"
+//           aria-invalid={!!codeError}
+//           aria-describedby={codeError ? "guard-error" : undefined}
+//           className="h-12 rounded-lg border-gray-300 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+//         />
+//         {codeError && (
+//           <p id="guard-error" className="text-xs text-red-600">
+//             {codeError}
+//           </p>
+//         )}
+//       </div>
+//       <Button
+//         onClick={handleSubmit}
+//         disabled={isLoading}
+//         className="h-12 w-full rounded-lg bg-purple-600 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-50 focus:ring-2 focus:ring-purple-500"
+//       >
+//         {isLoading ? (
+//           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+//         ) : (
+//           "Log In"
+//         )}
+//       </Button>
+//       <p className="text-xs text-gray-500">
+//         Need the app?{" "}
+//         <Link
+//           href="/download-ryzer-guard"
+//           className="text-purple-600 hover:underline focus:outline-none focus:ring-2 focus:ring-purple-500"
+//         >
+//           Download Ryzer Guard
+//         </Link>
+//       </p>
+//     </div>
+//   )
+// }
 
 // Passkey Login Component
 interface PasskeyLoginProps {
@@ -249,54 +302,54 @@ interface PasskeyLoginProps {
   onSubmit: () => Promise<void>
 }
 
-function PasskeyLogin({ isLoading, onSubmit }: PasskeyLoginProps) {
-  return (
-    <div className="space-y-6 text-center">
-      <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-purple-100">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
-            stroke="#7C3AED"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M15 9H9V15H15V9Z"
-            stroke="#7C3AED"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
-      <h3 className="text-lg font-semibold text-gray-900">Passkey Login</h3>
-      <p className="text-sm text-gray-500">
-        Use your device’s biometric authentication or security key.
-      </p>
-      <Button
-        onClick={onSubmit}
-        disabled={isLoading}
-        className="h-12 w-full rounded-lg bg-purple-600 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-50 focus:ring-2 focus:ring-purple-500"
-      >
-        {isLoading ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          "Continue with Passkey"
-        )}
-      </Button>
-      <p className="text-xs text-gray-500">
-        No passkey?{" "}
-        <Link
-          href="/learn-passkey"
-          className="text-purple-600 hover:underline focus:outline-none focus:ring-2 focus:ring-purple-500"
-        >
-          Learn more
-        </Link>
-      </p>
-    </div>
-  )
-}
+// function PasskeyLogin({ isLoading, onSubmit }: PasskeyLoginProps) {
+//   return (
+//     <div className="space-y-6 text-center">
+//       <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-purple-100">
+//         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+//           <path
+//             d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+//             stroke="#7C3AED"
+//             strokeWidth="2"
+//             strokeLinecap="round"
+//             strokeLinejoin="round"
+//           />
+//           <path
+//             d="M15 9H9V15H15V9Z"
+//             stroke="#7C3AED"
+//             strokeWidth="2"
+//             strokeLinecap="round"
+//             strokeLinejoin="round"
+//           />
+//         </svg>
+//       </div>
+//       <h3 className="text-lg font-semibold text-gray-900">Passkey Login</h3>
+//       <p className="text-sm text-gray-500">
+//         Use your device’s biometric authentication or security key.
+//       </p>
+//       <Button
+//         onClick={onSubmit}
+//         disabled={isLoading}
+//         className="h-12 w-full rounded-lg bg-purple-600 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-50 focus:ring-2 focus:ring-purple-500"
+//       >
+//         {isLoading ? (
+//           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+//         ) : (
+//           "Continue with Passkey"
+//         )}
+//       </Button>
+//       <p className="text-xs text-gray-500">
+//         No passkey?{" "}
+//         <Link
+//           href="/learn-passkey"
+//           className="text-purple-600 hover:underline focus:outline-none focus:ring-2 focus:ring-purple-500"
+//         >
+//           Learn more
+//         </Link>
+//       </p>
+//     </div>
+//   )
+// }
 
 // Main Login Page Component
 export default function LoginPage() {
@@ -481,75 +534,76 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Left Panel (Hidden on Mobile) */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900/90">
-        <div className="flex flex-col items-start justify-center px-12 text-white max-w-2xl">
-          <h1 className="mb-6 text-4xl font-bold tracking-tight">
-            Secure Digital Asset Management
-          </h1>
-          <p className="mb-8 text-lg leading-relaxed">
-            Empowering real estate tokenization with our secure, scalable Wallet-as-a-Service platform.
-          </p>
-          <ul className="mb-8 space-y-3 text-base">
-            <li className="flex items-center">
-              <svg
-                className="w-6 h-6 mr-2 text-green-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              Bank-grade security
-            </li>
-            <li className="flex items-center">
-              <svg
-                className="w-6 h-6 mr-2 text-green-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              Regulatory compliance
-            </li>
-            <li className="flex items-center">
-              <svg
-                className="w-6 h-6 mr-2 text-green-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              Seamless integration
-            </li>
-          </ul>
-          <div className="mt-auto">
-            <Image
-              src="/dashboard-preview.png"
-              alt="Dashboard Preview"
-              width={500}
-              height={400}
-              className="rounded-lg border border-white/10 shadow-xl hover:shadow-2xl transition-shadow"
-            />
-          </div>
-        </div>
-      </div>
+<div className="hidden lg:flex lg:w-1/2 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900/90">
+  <div className="flex flex-col justify-center px-12 py-16 text-white max-w-2xl space-y-6">
+    <h1 className="text-4xl font-bold tracking-tight leading-tight">
+      Powering Real Estate Tokenization with Scalable Wallet-as-a-Service
+    </h1>
+    <p className="text-lg leading-relaxed">
+      Unlock the potential of real estate tokenization with our robust Ryzer wallet, designed for security, scalability, and seamless management of digital assets across the entire investment lifecycle.
+    </p>
+    <ul className="space-y-3 text-base">
+      <li className="flex items-center">
+        <svg
+          className="w-6 h-6 mr-2 text-green-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M5 13l4 4L19 7"
+          />
+        </svg>
+        Bank-grade security
+      </li>
+      <li className="flex items-center">
+        <svg
+          className="w-6 h-6 mr-2 text-green-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M5 13l4 4L19 7"
+          />
+        </svg>
+        Regulatory compliance
+      </li>
+      <li className="flex items-center">
+        <svg
+          className="w-6 h-6 mr-2 text-green-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M5 13l4 4L19 7"
+          />
+        </svg>
+        Seamless integration
+      </li>
+    </ul>
+    <div>
+      <Image
+        src="/dashboard-preview.png"
+        alt="Dashboard Preview"
+        width={500}
+        height={400}
+        loading="lazy"
+        className="rounded-lg border border-white/10 shadow-xl hover:shadow-2xl transition-shadow"
+      />
+    </div>
+  </div>
+</div>
 
       {/* Right Panel (Login Form) */}
       <div className="flex w-full lg:w-1/2 items-center justify-center p-6 sm:p-8">
@@ -701,7 +755,7 @@ export default function LoginPage() {
               <RyzerGuardLogin isLoading={isLoading} onSubmit={handleRyzerGuardLogin} />
             </TabsContent>
             <TabsContent value="passkey">
-              <PasskeyLogin isLoading={isLoading} onSubmit={handlePasskeyLogin} />
+              <PasskeyLogin {...{ isLoading, onSubmit: handlePasskeyLogin }} />
             </TabsContent>
           </Tabs>
         </div>
