@@ -216,24 +216,6 @@ export default function TransactionHistoryPage() {
           transition={{ duration: 0.5 }}
           className="flex flex-col sm:flex-row items-start justify-between gap-4"
         >
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">
-                Admin: Transaction History
-              </h1>
-              <Badge className="bg-blue-100 text-blue-800">Admin</Badge>
-            </div>
-            <p className="text-lg text-gray-600">
-              Monitor and manage transactions across all platform wallets.
-            </p>
-          </div>
-          <div className="flex items-center gap-4 text-sm text-gray-600">
-            <span className="font-medium">Transactions: {transactions.length}</span>
-            <span className="hidden sm:inline">|</span>
-            <span className="font-medium">
-              Pending: {transactions.filter((tx) => tx.status === "pending_approval").length}
-            </span>
-          </div>
         </motion.div>
 
         {/* Summary Dashboard */}
@@ -241,6 +223,12 @@ export default function TransactionHistoryPage() {
           <Card className="bg-white border-gray-200 shadow-lg rounded-xl">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-gray-900">Transaction Overview</CardTitle>
+              <div className="space-y-1">
+      
+            <p className="text-sm text-gray-600">
+              Monitor and manage transactions across all platform wallets.
+            </p>
+          </div>
             </CardHeader>
             <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="flex items-center gap-4">
