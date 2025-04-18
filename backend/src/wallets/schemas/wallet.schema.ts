@@ -1,87 +1,49 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { User } from '../../users/schemas/user.schema';
 
 export type WalletDocument = Wallet & Document;
 
 export enum WalletType {
-  HOT = 'HOT',
-  COLD = 'COLD',
-  MULTISIG = 'MULTISIG',
-  CUSTODIAL = 'CUSTODIAL',
+  MPC = 'mpc',
+  CUSTODIAL = 'custodial',
+  SMART_CONTRACT = 'smart_contract',
 }
 
 export enum WalletStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-  LOCKED = 'LOCKED',
-  PENDING = 'PENDING',
+  ACTIVE = 'active',
+  PENDING = 'pending',
+  FROZEN = 'frozen',
 }
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, discriminatorKey: 'type' })
 export class Wallet {
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
-  userId: User;
-
-  @Prop({ required: true, unique: true })
-  address: string;
-
-  @Prop({ required: true, default: 0 })
-  balance: number;
-
-  @Prop({ required: true, default: 'ETH' })
-  currency: string;
-
-  @Prop({ type: String, enum: WalletType, default: WalletType.HOT })
+  @Prop({ required: true, enum: WalletType })
   type: WalletType;
 
-  @Prop({ type: String, enum: WalletStatus, default: WalletStatus.ACTIVE })
+  @Prop({ required: true })
+  name: string;
+
+  @Prop({ required: true, enum: WalletStatus, default: WalletStatus.PENDING })
   status: WalletStatus;
 
-  @Prop({ default: false })
-  isVerified: boolean;
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  userId: Types.ObjectId;
 
-  @Prop()
-  privateKey: string;
+  @Prop({ required: true })
+  userName: string;
 
-  @Prop()
-  publicKey: string;
+  @Prop({ required: true })
+  userEmail: string;
 
-  @Prop()
-  mnemonic: string;
+  @Prop({ type: Object })
+  metadata: Record<string, any>;
 
-  @Prop({ default: false })
-  isBackedUp: boolean;
+  @Prop({ type: Date })
+  createdAt: Date;
 
-  @Prop()
-  lastBackupAt: Date;
+  @Prop({ type: Date })
+  updatedAt: Date;
+}
 
-  @Prop()
-  backupLocation: string;
-
-  @Prop()
-  securitySettings: {
-    twoFactorEnabled: boolean;
-    withdrawalLimit: number;
-    dailyLimit: number;
-    allowedIPs: string[];
-    allowedDevices: string[];
-  };
-
-  @Prop()
-  metadata: {
-    name: string;
-    description: string;
-    tags: string[];
-    customFields: Record<string, any>;
-  };
-
-  @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Transaction' }] })
-  transactions: string[];
-
-  @Prop()
-  lastActivityAt: Date;
-
-  @Prop()
-  lastBalanceUpdate: Date;
-} 
+export const WalletSchema = SchemaFactory.createForClass(Wallet); 
