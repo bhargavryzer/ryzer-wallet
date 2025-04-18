@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   ArrowRight,
   CreditCard,
@@ -19,6 +19,8 @@ import {
   Filter,
 } from "lucide-react";
 import Link from "next/link";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "@/components/ui/use-toast";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,64 +33,151 @@ import { WalletBalanceChart } from "@/components/wallet-balance-chart";
 import { WalletTransactionList } from "@/components/wallet-transaction-list";
 import { QuickActions } from "@/components/quick-actions";
 import { VisuallyHidden } from "@/components/ui/visually-hidden";
+import { CreateWalletDialog } from "@/components/dialogs/create-wallet-dialog";
+import { useAuth } from "@/contexts/auth-context";
+import {
+  getDashboardStats,
+  getRecentUsers,
+  getPendingApprovals,
+  getWallets,
+  handleApproval,
+  getAssetTrend,
+} from "@/services/api";
 
-// Sample data for admin dashboard
-const dashboardData = {
-  totalUsers: 125,
-  activeUsers: 112,
-  totalWallets: 287,
-  totalAssets: "$322,571.80",
-  frozenWallets: 3,
-  pendingApprovals: 8,
-  recentUsers: [
-    { id: "user-1", name: "John Smith", email: "john.smith@example.com", wallets: 2, status: "active", lastActive: "2023-12-15" },
-    { id: "user-2", name: "Sarah Johnson", email: "sarah.j@example.com", wallets: 1, status: "active", lastActive: "2023-12-10" },
-    { id: "user-3", name: "Michael Brown", email: "m.brown@example.com", wallets: 2, status: "active", lastActive: "2023-12-14" },
-    { id: "user-4", name: "Emily Davis", email: "emily.d@example.com", wallets: 1, status: "inactive", lastActive: "2023-12-01" },
-    { id: "user-5", name: "Robert Wilson", email: "r.wilson@example.com", wallets: 2, status: "active", lastActive: "2023-12-12" },
-  ],
-  pendingActions: [
-    { id: "action-1", type: "wallet_approval", user: "Michael Brown", description: "New MPC wallet creation", requestedAt: "2023-12-14" },
-    { id: "action-2", type: "large_withdrawal", user: "Sarah Johnson", description: "Withdrawal of $25,000", requestedAt: "2023-12-13" },
-    { id: "action-3", type: "wallet_approval", user: "Robert Wilson", description: "New custodial wallet creation", requestedAt: "2023-12-12" },
-    { id: "action-4", type: "security_alert", user: "Emily Davis", description: "Multiple failed login attempts", requestedAt: "2023-12-10" },
-  ],
-};
+// Types
+interface DashboardStats {
+  totalUsers: number;
+  activeUsers: number;
+  totalWallets: number;
+  totalAssets: string;
+  frozenWallets: number;
+  pendingApprovals: number;
+}
 
-// Sample wallet data
-const wallets = [
-  {
-    id: "wallet-1",
-    name: "Main Wallet",
-    type: "custodial",
-    balance: "$12,450.00",
-    tokens: 3,
-    address: "0x1a2b3c4d5e6f7g8h9i0j",
-  },
-  {
-    id: "wallet-2",
-    name: "Investment Wallet",
-    type: "mpc",
-    balance: "$45,230.50",
-    tokens: 5,
-    address: "0x9i8h7g6f5e4d3c2b1a0",
-  },
-];
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  wallets: number;
+  status: "active" | "inactive";
+  lastActive: string;
+}
+
+interface PendingAction {
+  id: string;
+  type: "wallet_approval" | "large_withdrawal" | "security_alert";
+  user: string;
+  description: string;
+  requestedAt: string;
+}
+
+interface Wallet {
+  id: string;
+  name: string;
+  type: "custodial" | "mpc";
+  balance: string;
+  tokens: number;
+  address: string;
+}
 
 export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [hideBalance, setHideBalance] = useState(false);
-  const [userRole, setUserRole] = useState("admin"); // In a real app, this would come from auth context
-  const [activeTab, setActiveTab] = useState("overview");
   const [showCreateWallet, setShowCreateWallet] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
+  
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const userRole = user?.role || "user";
+
+  // Queries
+  const { data: stats, isLoading: isLoadingStats } = useQuery<DashboardStats>({
+    queryKey: ["dashboardStats"],
+    queryFn: getDashboardStats,
+    enabled: userRole === "admin",
+  });
+
+  const { data: users, isLoading: isLoadingUsers } = useQuery<User[]>({
+    queryKey: ["recentUsers", searchQuery],
+    queryFn: () => getRecentUsers(searchQuery),
+    enabled: userRole === "admin",
+  });
+
+  const { data: pendingActions, isLoading: isLoadingApprovals } = useQuery<PendingAction[]>({
+    queryKey: ["pendingApprovals"],
+    queryFn: getPendingApprovals,
+    enabled: userRole === "admin",
+  });
+
+  const { data: wallets, isLoading: isLoadingWallets } = useQuery<Wallet[]>({
+    queryKey: ["wallets", searchQuery],
+    queryFn: () => getWallets(searchQuery),
+  });
+
+  // Mutations
+  const handleApprovalMutation = useMutation({
+    mutationFn: ({ approvalId, action, reason }: { 
+      approvalId: string; 
+      action: "approve" | "deny"; 
+      reason?: string;
+    }) => handleApproval(approvalId, action, reason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pendingApprovals"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+      toast({
+        title: "Success",
+        description: "Action processed successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to process action",
+      });
+    },
+  });
+
+  const handleApprovalAction = useCallback(async (
+    approvalId: string,
+    action: "approve" | "deny",
+    reason?: string
+  ) => {
+    try {
+      await handleApprovalMutation.mutateAsync({ approvalId, action, reason });
+    } catch (error) {
+      console.error("Failed to process approval:", error);
+    }
+  }, [handleApprovalMutation]);
 
   // Filter users based on search query
-  const filteredUsers = dashboardData.recentUsers.filter(
+  const filteredUsers = users?.filter(
     (user) =>
       searchQuery === "" ||
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  ) || [];
+
+  // Handlers
+  const handleRefresh = useCallback(() => {
+    queryClient.invalidateQueries();
+  }, [queryClient]);
+
+  const handleExportReport = useCallback(async () => {
+    try {
+      // Implement export functionality
+      toast({
+        title: "Export Started",
+        description: "Your report will be downloaded shortly",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Export Failed",
+        description: "Failed to generate report",
+      });
+    }
+  }, []);
 
   return (
     <DashboardLayout>
@@ -96,7 +185,9 @@ export default function DashboardPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">{userRole === "admin" ? "Admin Dashboard" : "Dashboard"}</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              {userRole === "admin" ? "Admin Dashboard" : "Dashboard"}
+            </h1>
             <p className="text-muted-foreground">
               {userRole === "admin"
                 ? "Monitor and manage all user wallets and platform activities"
@@ -104,12 +195,12 @@ export default function DashboardPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Button variant="outline">
+            <Button variant="outline" onClick={handleRefresh}>
               <RefreshCw className="mr-2 h-4 w-4" />
               Refresh
             </Button>
             {userRole === "admin" ? (
-              <Button>
+              <Button onClick={handleExportReport}>
                 <Download className="mr-2 h-4 w-4" />
                 Export Report
               </Button>
@@ -142,8 +233,8 @@ export default function DashboardPage() {
                       <Users className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">{dashboardData.totalUsers}</div>
-                      <p className="text-xs text-muted-foreground">{dashboardData.activeUsers} active users</p>
+                      <div className="text-2xl font-bold">{stats?.totalUsers}</div>
+                      <p className="text-xs text-muted-foreground">{stats?.activeUsers} active users</p>
                     </CardContent>
                   </Card>
                   <Card>
@@ -152,8 +243,8 @@ export default function DashboardPage() {
                       <Wallet className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">{dashboardData.totalWallets}</div>
-                      <p className="text-xs text-muted-foreground">Across {dashboardData.totalUsers} users</p>
+                      <div className="text-2xl font-bold">{stats?.totalWallets}</div>
+                      <p className="text-xs text-muted-foreground">Across {stats?.totalUsers} users</p>
                     </CardContent>
                   </Card>
                   <Card>
@@ -162,7 +253,7 @@ export default function DashboardPage() {
                       <BarChart3 className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">{dashboardData.totalAssets}</div>
+                      <div className="text-2xl font-bold">{stats?.totalAssets}</div>
                       <p className="text-xs text-muted-foreground">All managed assets</p>
                     </CardContent>
                   </Card>
@@ -172,7 +263,7 @@ export default function DashboardPage() {
                       <AlertTriangle className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">{dashboardData.pendingApprovals}</div>
+                      <div className="text-2xl font-bold">{stats?.pendingApprovals}</div>
                       <p className="text-xs text-muted-foreground">Requires admin attention</p>
                     </CardContent>
                   </Card>
@@ -339,7 +430,7 @@ export default function DashboardPage() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {dashboardData.pendingActions.map((action) => (
+                        {pendingActions?.map((action) => (
                           <TableRow key={action.id}>
                             <TableCell>
                               <Badge variant="outline">
@@ -347,9 +438,7 @@ export default function DashboardPage() {
                                   ? "Wallet"
                                   : action.type === "large_withdrawal"
                                   ? "Withdrawal"
-                                  : action.type === "security_alert"
-                                  ? "Security"
-                                  : "Other"}
+                                  : "Security"}
                               </Badge>
                             </TableCell>
                             <TableCell>{action.user}</TableCell>
@@ -357,10 +446,10 @@ export default function DashboardPage() {
                             <TableCell>{action.requestedAt}</TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-2">
-                                <Button variant="outline" size="sm">
+                                <Button variant="outline" size="sm" onClick={() => handleApprovalAction(action.id, "approve")}>
                                   Approve
                                 </Button>
-                                <Button variant="ghost" size="sm">
+                                <Button variant="ghost" size="sm" onClick={() => handleApprovalAction(action.id, "deny")}>
                                   Deny
                                 </Button>
                               </div>
@@ -659,7 +748,7 @@ export default function DashboardPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {wallets.map((wallet) => (
+                    {wallets?.map((wallet) => (
                       <TableRow key={wallet.id}>
                         <TableCell>{wallet.name}</TableCell>
                         <TableCell>
@@ -690,6 +779,12 @@ export default function DashboardPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Create Wallet Dialog */}
+      <CreateWalletDialog 
+        open={showCreateWallet} 
+        onOpenChange={setShowCreateWallet} 
+      />
     </DashboardLayout>
   );
 }

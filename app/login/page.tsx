@@ -5,8 +5,10 @@ import dynamic from "next/dynamic"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Eye, EyeOff, X, Loader2 } from "lucide-react"
+import { Eye, EyeOff, X, Loader2, Wallet } from "lucide-react"
 import type { ExternalProvider } from "@ethersproject/providers"
+import { useAuth } from "@/contexts/auth-context"
+import { AuthProvider } from "@/types/auth"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -20,6 +22,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
+import { QRCodeSVG } from "qrcode.react"
 
 // Constants
 const RYZER_GUARD_CODE_LENGTH = 6
@@ -61,23 +64,127 @@ const EmailLoginForm = dynamic(() => import('@/components/login/email-login-form
   ssr: false
 })
 
-const RyzerGuardLogin = dynamic(() => import('@/components/login/ryzer-guard-login').then(mod => mod.RyzerGuardLogin), {
-  loading: () => (
+// Ryzer Guard Login Component
+interface RyzerGuardLoginProps {
+  isLoading: boolean
+  onSubmit: (code: string) => Promise<void>
+}
+
+const RyzerGuardLogin = ({ isLoading, onSubmit }: RyzerGuardLoginProps) => {
+  const [code, setCode] = useState("")
+  const [codeError, setCodeError] = useState("")
+  const [qrCode, setQrCode] = useState("")
+
+  useEffect(() => {
+    // Generate QR code data with proper format
+    const generateQRData = () => {
+      const code = Math.floor(100000 + Math.random() * 900000).toString()
+      // Create a structured data object for the QR code
+      const qrData = {
+        type: "ryzer_auth",
+        code: code,
+        timestamp: Date.now(),
+        domain: window.location.hostname,
+        action: "login"
+      }
+      // Convert to URL-safe format
+      const qrString = `ryzerguard://auth?data=${encodeURIComponent(JSON.stringify(qrData))}`
+      setQrCode(qrString)
+      setCode(code) // Set the 6-digit code for manual entry
+    }
+
+    generateQRData()
+  }, [])
+
+  const validateCode = (value: string) => {
+    const codeRegex = /^\d{6}$/
+    return codeRegex.test(value) ? "" : "Please enter a valid 6-digit code"
+  }
+
+  const handleSubmit = async () => {
+    const codeValidation = validateCode(code)
+    setCodeError(codeValidation)
+    if (!codeValidation) {
+      await onSubmit(code)
+    }
+  }
+
+  return (
     <div className="space-y-6 text-center">
-      <div className="space-y-1">
-        <div className="h-6 w-32 mx-auto animate-pulse rounded bg-gray-200"></div>
-        <div className="h-5 w-64 mx-auto animate-pulse rounded bg-gray-200"></div>
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900">Ryzer Guard</h3>
+        <p className="mt-1 text-sm text-gray-500">
+          Scan the QR code or enter the code from the Ryzer Guard app.
+        </p>
       </div>
-      <div className="h-40 w-40 mx-auto animate-pulse rounded-lg bg-gray-200"></div>
+      <div className="flex justify-center">
+        <div className="p-4 bg-white rounded-lg shadow-sm">
+          <div className="relative">
+            <QRCodeSVG
+              value={qrCode}
+              size={200}
+              level="H"
+              style={{
+                filter: 'drop-shadow(0 1px 2px rgb(0 0 0 / 0.1))',
+              }}
+              imageSettings={{
+                src: "/Ryzerlogo.svg",
+                height: 24,
+                width: 24,
+                excavate: true,
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-br from-green-300 via-yellow-300 to-pink-300 opacity-30 mix-blend-overlay rounded-lg" />
+          </div>
+        </div>
+      </div>
       <div className="space-y-2">
-        <div className="h-5 w-24 mx-auto animate-pulse rounded bg-gray-200"></div>
-        <div className="h-12 w-full animate-pulse rounded-lg bg-gray-200"></div>
+        <Label htmlFor="guard-code" className="text-sm font-medium text-gray-700">
+          Guard Code
+        </Label>
+        <Input
+          id="guard-code"
+          placeholder="Enter 6-digit code"
+          value={code}
+          onChange={(e) => {
+            setCode(e.target.value)
+            setCodeError(validateCode(e.target.value))
+          }}
+          maxLength={6}
+          inputMode="numeric"
+          aria-invalid={!!codeError}
+          aria-describedby={codeError ? "guard-error" : undefined}
+          className="h-12 rounded-lg border-gray-300 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+        />
+        {codeError && (
+          <p id="guard-error" className="text-xs text-red-600">
+            {codeError}
+          </p>
+        )}
       </div>
-      <div className="h-12 w-full animate-pulse rounded-lg bg-gray-200"></div>
+      <Button
+        onClick={handleSubmit}
+        disabled={isLoading}
+        className="h-12 w-full rounded-lg bg-purple-600 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-50 focus:ring-2 focus:ring-purple-500"
+      >
+        {isLoading ? (
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        ) : (
+          "Log In"
+        )}
+      </Button>
+      <p className="text-xs text-gray-500">
+        Need the app?{" "}
+        <Link
+          href="/download-ryzer-guard"
+          className="text-purple-600 hover:underline focus:outline-none focus:ring-2 focus:ring-purple-500"
+        >
+          Download Ryzer Guard
+        </Link>
+      </p>
     </div>
-  ),
-  ssr: false
-})
+  )
+}
 
 const PasskeyLogin = dynamic(() => import('@/components/login/passkey-login').then(mod => mod.PasskeyLogin), {
   loading: () => (
@@ -91,102 +198,6 @@ const PasskeyLogin = dynamic(() => import('@/components/login/passkey-login').th
   ),
   ssr: false
 })
-
-
-// Ryzer Guard Login Component
-interface RyzerGuardLoginProps {
-  isLoading: boolean
-  onSubmit: (code: string) => Promise<void>
-}
-
-// function RyzerGuardLogin({ isLoading, onSubmit }: RyzerGuardLoginProps) {
-//   const [code, setCode] = useState("")
-//   const [codeError, setCodeError] = useState("")
-
-//   const validateCode = (value: string) => {
-//     const codeRegex = /^\d{6}$/
-//     return codeRegex.test(value) ? "" : "Please enter a valid 6-digit code"
-//   }
-
-//   const handleSubmit = async () => {
-//     const codeValidation = validateCode(code)
-//     setCodeError(codeValidation)
-//     if (!codeValidation) {
-//       await onSubmit(code)
-//     }
-//   }
-
-//   return (
-//     <div className="space-y-6 text-center">
-//       <div>
-//         <h3 className="text-lg font-semibold text-gray-900">Ryzer Guard</h3>
-//         <p className="mt-1 text-sm text-gray-500">
-//           Scan the QR code or enter the code from the Ryzer Guard app.
-//         </p>
-//       </div>
-//       <div className="flex justify-center rounded-lg bg-gray-100 p-4">
-//         <Image
-//           src="/qr-code-placeholder.png"
-//           alt="Ryzer Guard QR Code"
-//           width={140}
-//           height={140}
-//           className="rounded-md"
-//         />
-//       </div>
-//       <div className="space-y-2">
-//         <Label htmlFor="guard-code" className="text-sm font-medium text-gray-700">
-//           Guard Code
-//         </Label>
-//         <Input
-//           id="guard-code"
-//           placeholder="Enter 6-digit code"
-//           value={code}
-//           onChange={(e) => {
-//             setCode(e.target.value)
-//             setCodeError(validateCode(e.target.value))
-//           }}
-//           maxLength={RYZER_GUARD_CODE_LENGTH}
-//           inputMode="numeric"
-//           aria-invalid={!!codeError}
-//           aria-describedby={codeError ? "guard-error" : undefined}
-//           className="h-12 rounded-lg border-gray-300 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
-//         />
-//         {codeError && (
-//           <p id="guard-error" className="text-xs text-red-600">
-//             {codeError}
-//           </p>
-//         )}
-//       </div>
-//       <Button
-//         onClick={handleSubmit}
-//         disabled={isLoading}
-//         className="h-12 w-full rounded-lg bg-purple-600 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-50 focus:ring-2 focus:ring-purple-500"
-//       >
-//         {isLoading ? (
-//           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-//         ) : (
-//           "Log In"
-//         )}
-//       </Button>
-//       <p className="text-xs text-gray-500">
-//         Need the app?{" "}
-//         <Link
-//           href="/download-ryzer-guard"
-//           className="text-purple-600 hover:underline focus:outline-none focus:ring-2 focus:ring-purple-500"
-//         >
-//           Download Ryzer Guard
-//         </Link>
-//       </p>
-//     </div>
-//   )
-// }
-
-// Passkey Login Component
-interface PasskeyLoginProps {
-  isLoading: boolean
-  onSubmit: () => Promise<void>
-}
-
 
 // Main Login Page Component
 export default function LoginPage() {
@@ -266,18 +277,13 @@ export default function LoginPage() {
     }
   }, [isWeb3ModalOpen])
 
+  const { login } = useAuth()
+  
   const handleEmailLogin = useCallback(
     async (email: string, password: string) => {
       setIsLoading(true)
       try {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, API_SIMULATION_DELAY))
-        toast({
-          title: "Login successful",
-          description: "Welcome back! Redirecting to your dashboard...",
-          duration: TOAST_DURATION,
-        })
-        router.push("/dashboard")
+        await login("email-login", { email, password })
       } catch (error) {
         toast({
           variant: "destructive",
@@ -289,7 +295,7 @@ export default function LoginPage() {
         setIsLoading(false)
       }
     },
-    [router, toast]
+    [login, toast]
   )
 
   const handleWeb3Login = useCallback(async () => {
@@ -306,6 +312,7 @@ export default function LoginPage() {
       })) as string[]
       if (accounts.length > 0) {
         setAccount(accounts[0])
+        await login("web3", { address: accounts[0] })
       }
     } catch (error) {
       toast({
@@ -317,20 +324,13 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false)
     }
-  }, [isMetaMaskInstalled, toast])
+  }, [isMetaMaskInstalled, toast, login])
 
   const handleRyzerGuardLogin = useCallback(
     async (code: string) => {
       setIsLoading(true)
       try {
-        // Simulate Ryzer Guard verification
-        await new Promise((resolve) => setTimeout(resolve, API_SIMULATION_DELAY))
-        toast({
-          title: "Ryzer Guard login successful",
-          description: "Redirecting to dashboard...",
-          duration: TOAST_DURATION,
-        })
-        router.push("/dashboard")
+        await login("ryzer-guard", { code })
       } catch (error) {
         toast({
           variant: "destructive",
@@ -342,20 +342,13 @@ export default function LoginPage() {
         setIsLoading(false)
       }
     },
-    [router, toast]
+    [login, toast]
   )
 
   const handlePasskeyLogin = useCallback(async () => {
     setIsLoading(true)
     try {
-      // Simulate passkey authentication
-      await new Promise((resolve) => setTimeout(resolve, API_SIMULATION_DELAY))
-      toast({
-        title: "Passkey login successful",
-        description: "Redirecting to dashboard...",
-        duration: TOAST_DURATION,
-      })
-      router.push("/dashboard")
+      await login("passkey")
     } catch (error) {
       toast({
         variant: "destructive",
@@ -366,81 +359,81 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false)
     }
-  }, [router, toast])
+  }, [login, toast])
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Left Panel (Hidden on Mobile) */}
-<div className="hidden lg:flex lg:w-1/2 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900/90">
-  <div className="flex flex-col justify-center px-12 py-16 text-white max-w-2xl space-y-6">
-    <h1 className="text-4xl font-bold tracking-tight leading-tight">
-      Powering Real Estate Tokenization with Scalable Wallet-as-a-Service
-    </h1>
-    <p className="text-lg leading-relaxed">
-      Unlock the potential of real estate tokenization with our robust Ryzer wallet, designed for security, scalability, and seamless management of digital assets across the entire investment lifecycle.
-    </p>
-    <ul className="space-y-3 text-base">
-      <li className="flex items-center">
-        <svg
-          className="w-6 h-6 mr-2 text-green-400"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M5 13l4 4L19 7"
-          />
-        </svg>
-        Bank-grade security
-      </li>
-      <li className="flex items-center">
-        <svg
-          className="w-6 h-6 mr-2 text-green-400"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M5 13l4 4L19 7"
-          />
-        </svg>
-        Regulatory compliance
-      </li>
-      <li className="flex items-center">
-        <svg
-          className="w-6 h-6 mr-2 text-green-400"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M5 13l4 4L19 7"
-          />
-        </svg>
-        Seamless integration
-      </li>
-    </ul>
-    <div>
-      <Image
-        src="/dashboard-preview.png"
-        alt="Dashboard Preview"
-        width={500}
-        height={400}
-        loading="lazy"
-        className="rounded-lg border border-white/10 shadow-xl hover:shadow-2xl transition-shadow"
-      />
-    </div>
-  </div>
-</div>
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900/90">
+        <div className="flex flex-col justify-center px-12 py-16 text-white max-w-2xl space-y-6">
+          <h1 className="text-4xl font-bold tracking-tight leading-tight">
+            Powering Real Estate Tokenization with Scalable Wallet-as-a-Service
+          </h1>
+          <p className="text-lg leading-relaxed">
+            Unlock the potential of real estate tokenization with our robust Ryzer wallet, designed for security, scalability, and seamless management of digital assets across the entire investment lifecycle.
+          </p>
+          <ul className="space-y-3 text-base">
+            <li className="flex items-center">
+              <svg
+                className="w-6 h-6 mr-2 text-green-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              Bank-grade security
+            </li>
+            <li className="flex items-center">
+              <svg
+                className="w-6 h-6 mr-2 text-green-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              Regulatory compliance
+            </li>
+            <li className="flex items-center">
+              <svg
+                className="w-6 h-6 mr-2 text-green-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              Seamless integration
+            </li>
+          </ul>
+          <div>
+            <Image
+              src="/loginimg.webp"
+              alt="Dashboard Preview"
+              width={500}
+              height={400}
+              loading="lazy"
+              className="rounded-lg border border-white/10 shadow-xl hover:shadow-2xl transition-shadow"
+            />
+          </div>
+        </div>
+      </div>
 
       {/* Right Panel (Login Form) */}
       <div className="flex w-full lg:w-1/2 items-center justify-center p-6 sm:p-8">
@@ -448,16 +441,16 @@ export default function LoginPage() {
           {/* Header */}
           <div className="mb-8 flex items-center justify-between">
             <div className="flex items-center">
-              <div className="relative mr-3 h-12 w-12">
+              <div className="relative ">
                 <Image
-                  src="/logo.png"
+                  src="/Ryzerlogo.svg"
                   alt="Ryzer Logo"
-                  fill
-                  priority
-                  className="object-contain"
+                  width={150}
+                  height={200} // Add a height value here
+                  
+                  // className="object-contain"
                 />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">Ryzer Wallet</h2>
             </div>
             <div className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 shadow-sm hover:shadow">
               Production
@@ -465,8 +458,8 @@ export default function LoginPage() {
           </div>
 
           {/* Tabs */}
-          <Tabs defaultValue="email" className="w-full">
-            <TabsList className="mb-8 grid w-full grid-cols-3 rounded-xl bg-gray-100 p-1">
+          <Tabs defaultValue="email" className="w-full" >
+            <TabsList className="mb-8 grid w-full grid-cols-3 rounded-xl bg-gray-100 p-1 h-75" style={{ height: "75px" }}>
               <TabsTrigger
                 value="email"
                 className="py-3 text-sm font-semibold rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -503,59 +496,12 @@ export default function LoginPage() {
                 className="h-12 w-full rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-900 hover:bg-gray-50 focus:ring-2 focus:ring-purple-500"
               >
                 <div className="flex items-center space-x-2">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-orange-100">
-                    <svg width="16" height="16" viewBox="0 0 35 33" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path
-                        d="M32.9582 1L19.8241 10.7183L22.2665 5.09082L32.9582 1Z"
-                        fill="#E17726"
-                        stroke="#E17726"
-                        strokeWidth="0.25"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M2.04183 1L15.0252 10.809L12.7336 5.09082L2.04183 1Z"
-                        fill="#E27625"
-                        stroke="#E27625"
-                        strokeWidth="0.25"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M28.2292 23.5334L24.7346 28.872L32.2175 30.9324L34.3611 23.6569L28.2292 23.5334Z"
-                        fill="#E27625"
-                        stroke="#E27625"
-                        strokeWidth="0.25"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M0.650299 23.6569L2.78262 30.9324L10.2655 28.872L6.77094 23.5334L0.650299 23.6569Z"
-                        fill="#E27625"
-                        stroke="#E27625"
-                        strokeWidth="0.25"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M9.89306 14.5149L7.82764 17.6507L15.2334 17.9977L14.9864 9.95752L9.89306 14.5149Z"
-                        fill="#E27625"
-                        stroke="#E27625"
-                        strokeWidth="0.25"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M25.1069 14.5149L19.9406 9.86401L19.8241 17.9977L27.2298 17.6507L25.1069 14.5149Z"
-                        fill="#E27625"
-                        stroke="#E27625"
-                        strokeWidth="0.25"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+                  
+                  <div className="flex h-6 w-6 items-center justify-center">
+                    <Wallet/>
+
                   </div>
-                  <span>Connect with MetaMask</span>
+                  <span>Use Web3 Wallet</span>
                 </div>
               </Button>
               <div className="mt-6 text-center text-xs text-gray-500">
