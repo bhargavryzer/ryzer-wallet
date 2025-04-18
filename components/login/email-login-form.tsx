@@ -7,6 +7,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { EmailLoginFormData } from "@/types/auth"
 
 // Email Login Form Component
 interface EmailLoginFormProps {
@@ -54,7 +55,7 @@ export function EmailLoginForm({ isLoading, onSubmit }: EmailLoginFormProps) {
         <Input
           id="email"
           type="email"
-          placeholder="name@example.com"
+          placeholder="name@example.comiiii"
           value={email}
           onChange={(e) => {
             setEmail(e.target.value)
