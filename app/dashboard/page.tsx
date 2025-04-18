@@ -10,7 +10,7 @@ import {
   Search,
   Shield,
   Users,
-  Wallet,
+  Wallet as WalletIcon,
   AlertTriangle,
   BarChart3,
   Eye,
@@ -19,7 +19,7 @@ import {
   Filter,
 } from "lucide-react";
 import Link from "next/link";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { toast } from "@/components/ui/use-toast";
 
 import { Button } from "@/components/ui/button";
@@ -35,50 +35,8 @@ import { QuickActions } from "@/components/quick-actions";
 import { VisuallyHidden } from "@/components/ui/visually-hidden";
 import { CreateWalletDialog } from "@/components/dialogs/create-wallet-dialog";
 import { useAuth } from "@/contexts/auth-context";
-import {
-  getDashboardStats,
-  getRecentUsers,
-  getPendingApprovals,
-  getWallets,
-  handleApproval,
-  getAssetTrend,
-} from "@/services/api";
-
-// Types
-interface DashboardStats {
-  totalUsers: number;
-  activeUsers: number;
-  totalWallets: number;
-  totalAssets: string;
-  frozenWallets: number;
-  pendingApprovals: number;
-}
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  wallets: number;
-  status: "active" | "inactive";
-  lastActive: string;
-}
-
-interface PendingAction {
-  id: string;
-  type: "wallet_approval" | "large_withdrawal" | "security_alert";
-  user: string;
-  description: string;
-  requestedAt: string;
-}
-
-interface Wallet {
-  id: string;
-  name: string;
-  type: "custodial" | "mpc";
-  balance: string;
-  tokens: number;
-  address: string;
-}
+import { getDashboardStats, getRecentUsers, getPendingApprovals, getWallets, handleApproval } from './api';
+import type { DashboardStats, User, Approval, Wallet } from '@/types';
 
 export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -86,39 +44,42 @@ export default function DashboardPage() {
   const [showCreateWallet, setShowCreateWallet] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   
-  const { user } = useAuth();
   const queryClient = useQueryClient();
-  const userRole = user?.role || "user";
+  const  userRole  = 'admin'
 
   // Queries
-  const { data: stats, isLoading: isLoadingStats } = useQuery<DashboardStats>({
-    queryKey: ["dashboardStats"],
+  const { data: stats } = useQuery<DashboardStats>({
+    queryKey: ['dashboardStats'],
     queryFn: getDashboardStats,
     enabled: userRole === "admin",
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  const { data: users, isLoading: isLoadingUsers } = useQuery<User[]>({
-    queryKey: ["recentUsers", searchQuery],
+  const { data: recentUsers } = useQuery<User[]>({
+    queryKey: ['recentUsers', searchQuery],
     queryFn: () => getRecentUsers(searchQuery),
     enabled: userRole === "admin",
+    staleTime: 5 * 60 * 1000,
   });
 
-  const { data: pendingActions, isLoading: isLoadingApprovals } = useQuery<PendingAction[]>({
-    queryKey: ["pendingApprovals"],
+  const { data: pendingApprovals } = useQuery<Approval[]>({
+    queryKey: ['pendingApprovals'],
     queryFn: getPendingApprovals,
     enabled: userRole === "admin",
+    staleTime: 5 * 60 * 1000,
   });
 
-  const { data: wallets, isLoading: isLoadingWallets } = useQuery<Wallet[]>({
-    queryKey: ["wallets", searchQuery],
+  const { data: wallets } = useQuery<Wallet[]>({
+    queryKey: ['wallets', searchQuery],
     queryFn: () => getWallets(searchQuery),
+    staleTime: 5 * 60 * 1000,
   });
 
   // Mutations
   const handleApprovalMutation = useMutation({
     mutationFn: ({ approvalId, action, reason }: { 
       approvalId: string; 
-      action: "approve" | "deny"; 
+      action: "approve" | "reject"; 
       reason?: string;
     }) => handleApproval(approvalId, action, reason),
     onSuccess: () => {
@@ -140,7 +101,7 @@ export default function DashboardPage() {
 
   const handleApprovalAction = useCallback(async (
     approvalId: string,
-    action: "approve" | "deny",
+    action: "approve" | "reject",
     reason?: string
   ) => {
     try {
@@ -151,7 +112,7 @@ export default function DashboardPage() {
   }, [handleApprovalMutation]);
 
   // Filter users based on search query
-  const filteredUsers = users?.filter(
+  const filteredUsers = recentUsers?.filter(
     (user) =>
       searchQuery === "" ||
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -240,7 +201,7 @@ export default function DashboardPage() {
                   <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium">Total Wallets</CardTitle>
-                      <Wallet className="h-4 w-4 text-muted-foreground" />
+                      <WalletIcon className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">{stats?.totalWallets}</div>
@@ -430,7 +391,7 @@ export default function DashboardPage() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {pendingActions?.map((action) => (
+                        {pendingApprovals?.map((action) => (
                           <TableRow key={action.id}>
                             <TableCell>
                               <Badge variant="outline">
@@ -449,8 +410,8 @@ export default function DashboardPage() {
                                 <Button variant="outline" size="sm" onClick={() => handleApprovalAction(action.id, "approve")}>
                                   Approve
                                 </Button>
-                                <Button variant="ghost" size="sm" onClick={() => handleApprovalAction(action.id, "deny")}>
-                                  Deny
+                                <Button variant="ghost" size="sm" onClick={() => handleApprovalAction(action.id, "reject")}>
+                                  Reject
                                 </Button>
                               </div>
                             </TableCell>
@@ -496,7 +457,7 @@ export default function DashboardPage() {
                       <Card className="h-full hover:bg-muted/50 transition-colors cursor-pointer">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                           <CardTitle className="text-sm font-medium">Wallet Management</CardTitle>
-                          <Wallet className="h-4 w-4 text-muted-foreground" />
+                          <WalletIcon className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
                           <p className="text-xs text-muted-foreground">
