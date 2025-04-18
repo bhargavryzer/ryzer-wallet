@@ -807,44 +807,29 @@ export default function AdminMPCWalletsPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="space-y-2">
               <CardTitle className="text-2xl font-semibold">
-                Admin: MPC Wallets Overview
+                MPC Wallets Overview
               </CardTitle>
               <CardDescription className="text-sm text-gray-100">
                 Manage all MPC vaults and projects with advanced security controls.
               </CardDescription>
             </div>
-            <Button
-              variant="ghost"
-              className="h-10 text-white hover:bg-indigo-600"
-              onClick={() => setShowHelpTopics(true)}
-            >
-              <Info className="mr-2 h-4 w-4" />
-              Introduction and Demo
-            </Button>
+            <div className="flex flex-wrap items-center gap-4 text-sm text-white ">
+            <span>
+              <span className="font-semibold">Vaults:</span> {vaults.length}
+            </span>
+            <span>
+              <span className="font-semibold">Projects:</span> {projects.length}
+            </span>
+            <span>
+              <span className="font-semibold">Users:</span>{" "}
+              {new Set([...vaults.map((v) => v.userId), ...projects.map((p) => p.userId)]).size}
+            </span>
+          </div>
           </div>
           <div className="mt-4 flex flex-wrap gap-3">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="h-10 text-white border-white/20 hover:bg-indigo-600"
-                  >
-                    <svg
-                      className="mr-2 h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    How to Approve Vault Creation?
-                  </Button>
                 </TooltipTrigger>
                 <TooltipContent>Approval guide</TooltipContent>
               </Tooltip>
@@ -1490,31 +1475,6 @@ export default function AdminMPCWalletsPage() {
           transition={{ duration: 0.5 }}
           className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
         >
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
-                Admin: MPC Wallets
-              </h1>
-              <Badge className="bg-indigo-600 text-white">Admin</Badge>
-            </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Manage all MPC vaults and projects with advanced security controls
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-            <span>
-              <span className="font-semibold">Vaults:</span> {vaults.length}
-            </span>
-            <span className="hidden sm:inline">|</span>
-            <span>
-              <span className="font-semibold">Projects:</span> {projects.length}
-            </span>
-            <span className="hidden sm:inline">|</span>
-            <span>
-              <span className="font-semibold">Users:</span>{" "}
-              {new Set([...vaults.map((v) => v.userId), ...projects.map((p) => p.userId)]).size}
-            </span>
-          </div>
         </motion.div>
 
         {activeVault ? renderVaultDetails() : renderVaultCreation()}

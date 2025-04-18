@@ -142,73 +142,102 @@ const WalletInfoCard: React.FC<WalletInfoCardProps> = ({
   }
 
   return (
-    <Card className="bg-white border-gray-200 shadow-lg hover:shadow-xl transition-shadow rounded-xl">
-      <CardHeader className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-t-xl">
-        <CardTitle className="text-lg font-semibold text-gray-900">{name}</CardTitle>
-        <CardDescription className="text-sm text-gray-600">
-          {type === "safe" ? "Safe Wallet" : "AA Wallet"}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-3 pt-4">
-        <p className="text-sm">
-          <span className="font-medium text-gray-700">User:</span>{" "}
-          <Link href={`/admin/users/${id}`} className="text-purple-600 hover:underline">
-            {userName}
-          </Link>{" "}
-          <span className="text-gray-500">({userEmail})</span>
-        </p>
-        <p className="text-sm">
-          <span className="font-medium text-gray-700">Status:</span>{" "}
-          <Badge
-            variant={status === "active" ? "default" : status === "frozen" ? "destructive" : "secondary"}
-            className="px-2 py-1"
-          >
-            {status.charAt(0).toUpperCase() + status.slice(1)}
-          </Badge>
-        </p>
-        <p className="text-sm">
-          <span className="font-medium text-gray-700">Created:</span> {created}
-        </p>
-        <p className="text-sm">
-          <span className="font-medium text-gray-700">Address:</span>{" "}
-          <span className="font-mono text-gray-600">{address}</span>
-        </p>
-        <p className="text-sm">
-          <span className="font-medium text-gray-700">ID:</span> {id}
-        </p>
-      </CardContent>
-      <CardFooter className="flex gap-2 border-t border-gray-100 pt-4">
-        {status === "pending" && onApprove ? (
-          <>
-            <Button
-              size="sm"
-              className="bg-green-600 hover:bg-green-700"
-              onClick={() => handleAction("Approve", onApprove)}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="relative"
+    >
+      <Card className="overflow-hidden border-none shadow-md hover:shadow-lg transition-all duration-300 bg-white dark:bg-gray-800 hover:scale-[1.01]">
+        <CardHeader className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-4">
+          <CardTitle className="text-xl font-semibold font-poppins">{name}</CardTitle>
+          <CardDescription className="text-sm text-gray-100 font-poppins">
+            {type === "safe" ? "Safe Wallet" : "AA Wallet"}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <p className="text-sm text-gray-500 font-poppins">User</p>
+              <div className="flex items-center gap-2">
+                <Link href={`/admin/users/${id}`} className="text-indigo-600 hover:text-indigo-700 font-medium font-poppins">
+                  {userName}
+                </Link>
+                <span className="text-sm text-gray-500 font-poppins">({userEmail})</span>
+              </div>
+            </div>
+            <Badge
+              variant={status === "active" ? "default" : status === "frozen" ? "destructive" : "secondary"}
+              className="px-3 py-1 text-xs font-medium font-poppins"
             >
-              <Check className="mr-2 h-4 w-4" /> Approve
-            </Button>
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={() => handleAction("Reject", onApprove)}
-            >
-              <X className="mr-2 h-4 w-4" /> Reject
-            </Button>
-          </>
-        ) : (
-          onFreeze && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="border-gray-300 hover:bg-gray-100"
-              onClick={() => handleAction(status === "active" ? "Freeze" : "Unfreeze", onFreeze)}
-            >
-              <Shield className="mr-2 h-4 w-4" /> {status === "active" ? "Freeze" : "Unfreeze"}
-            </Button>
-          )
-        )}
-      </CardFooter>
-    </Card>
+              {status.charAt(0).toUpperCase() + status.slice(1)}
+            </Badge>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <p className="text-sm text-gray-500 font-poppins">Created</p>
+              <p className="font-medium font-poppins">{created}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-gray-500 font-poppins">Type</p>
+              <p className="font-medium font-poppins">{type === "safe" ? "Safe Wallet" : "AA Wallet"}</p>
+            </div>
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm text-gray-500 font-poppins">Address</p>
+            <div className="flex items-center gap-2">
+              <code className="px-2 py-1 bg-gray-100 rounded text-sm font-mono font-poppins">{address}</code>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => {
+                  navigator.clipboard.writeText(address)
+                  toast({
+                    title: "Address Copied",
+                    description: "Wallet address copied to clipboard.",
+                  })
+                }}
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+        <CardFooter className="flex gap-2 border-t border-gray-100 pt-4 bg-gray-50 dark:bg-gray-700">
+          {status === "pending" && onApprove ? (
+            <>
+              <Button
+                size="sm"
+                className="bg-indigo-600 hover:bg-indigo-700 transition-colors font-poppins"
+                onClick={() => handleAction("Approve", onApprove)}
+              >
+                <Check className="mr-2 h-4 w-4" /> Approve
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => handleAction("Reject", onApprove)}
+                className="font-poppins"
+              >
+                <X className="mr-2 h-4 w-4" /> Reject
+              </Button>
+            </>
+          ) : (
+            onFreeze && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-gray-300 hover:bg-gray-100 font-poppins"
+                onClick={() => handleAction(status === "active" ? "Freeze" : "Unfreeze", onFreeze)}
+              >
+                <Shield className="mr-2 h-4 w-4" /> {status === "active" ? "Freeze" : "Unfreeze"}
+              </Button>
+            )
+          )}
+        </CardFooter>
+      </Card>
+    </motion.div>
   )
 }
 
@@ -377,162 +406,75 @@ export default function AdminSmartContractWalletsPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8 p-6 min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      <div className="space-y-8 p-8 min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 font-poppins">
         {/* Header Section */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex flex-col sm:flex-row items-start justify-between gap-4"
+          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6"
         >
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">
-                Admin: Smart Contract Wallets
-              </h1>
-              <span className="rounded bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">Admin</span>
-            </div>
-            <p className="text-lg text-gray-600">
-              Manage all smart contract wallets across the platform with enhanced security and control.
-            </p>
-          </div>
-          <div className="flex items-center gap-4 text-sm text-gray-600">
-            <span className="font-medium">Wallets: {wallets.length}</span>
-            <span className="hidden sm:inline">|</span>
-            <span className="font-medium">Users: {new Set(wallets.map((w) => w.userId)).size}</span>
-          </div>
-        </motion.div>
-
-        {/* Summary Dashboard */}
-        <motion.div variants={cardVariants} initial="hidden" animate="visible">
-          <Card className="bg-white border-gray-200 shadow-lg rounded-xl">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-gray-900">Platform Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <div className="flex items-center gap-4">
-                <Image
-                  src="/placeholder.svg?height=48&width=48&query=wallets"
-                  alt="Wallets"
-                  width={48}
-                  height={48}
-                  className="rounded-full"
-                />
-                <div>
-                  <div className="text-3xl font-bold text-gray-900">{wallets.length}</div>
-                  <div className="text-sm text-gray-600">Total Wallets</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <Image
-                  src="/placeholder.svg?height=48&width=48&query=users"
-                  alt="Users"
-                  width={48}
-                  height={48}
-                  className="rounded-full"
-                />
-                <div>
-                  <div className="text-3xl font-bold text-gray-900">{new Set(wallets.map((w) => w.userId)).size}</div>
-                  <div className="text-sm text-gray-600">Active Users</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <Image
-                  src="/placeholder.svg?height=48&width=48&query=pending"
-                  alt="Pending"
-                  width={48}
-                  height={48}
-                  className="rounded-full"
-                />
-                <div>
-                  <div className="text-3xl font-bold text-gray-900">
-                    {wallets.filter((w) => w.status === "pending").length}
-                  </div>
-                  <div className="text-sm text-gray-600">Pending Approvals</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <Image
-                  src="/placeholder.svg?height=48&width=48&query=safe"
-                  alt="Safe Wallets"
-                  width={48}
-                  height={48}
-                  className="rounded-full"
-                />
-                <div>
-                  <div className="text-3xl font-bold text-gray-900">
-                    {wallets.filter((w) => w.type === "safe").length}
-                  </div>
-                  <div className="text-sm text-gray-600">Safe Wallets</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </motion.div>
 
         {/* Main Content */}
-        <Card className="bg-white border-gray-200 shadow-lg rounded-xl">
-          <CardHeader>
+        <Card className="bg-white dark:bg-gray-800 border-none shadow-lg overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="space-y-1">
-                <CardTitle className="text-xl font-semibold text-gray-900">
-                  Admin: Smart Contract Wallets Overview
+              <div className="space-y-2">
+                <CardTitle className="text-2xl font-semibold text-white font-poppins">
+                  Smart Contract Wallets Overview
                 </CardTitle>
-                <CardDescription className="text-sm text-gray-600">
-                  Manage Safe and AA wallets with advanced filtering and bulk actions.
+                <CardDescription className="text-sm text-gray-100 font-poppins">
+                  Securely manage Safe and AA wallets with enhanced security.
                 </CardDescription>
               </div>
               <div className="flex flex-wrap gap-3">
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="h-9 text-purple-600 hover:bg-purple-50 focus:ring-2 focus:ring-purple-600"
-                      >
-                        <Info className="mr-2 h-4 w-4" />
-                        What is Cobo Safe?
-                      </Button>
+                    <div className="flex items-center gap-4 text-sm text-white">
+            <span className="font-medium">Wallets: {wallets.length}</span>
+            
+            <span className="font-medium">Users: {new Set(wallets.map((w) => w.userId)).size}</span>
+          </div>
                     </TooltipTrigger>
-                    <TooltipContent>Cobo Safe Guide</TooltipContent>
+            
                   </Tooltip>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="h-9 text-purple-600 hover:bg-purple-50 focus:ring-2 focus:ring-purple-600"
-                      >
-                        <Info className="mr-2 h-4 w-4" />
-                        How to Approve Wallet Creation?
-                      </Button>
                     </TooltipTrigger>
-                    <TooltipContent>Approval Guide</TooltipContent>
+                    <TooltipContent className="font-poppins">Approval Guide</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               </div>
             </div>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 p-6">
             {/* Filters and Controls */}
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full sm:w-auto">
                 <div className="relative w-full sm:w-80">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-indigo-500" />
                   <Input
                     placeholder="Search by name or user"
-                    className="h-10 pl-10 focus:ring-2 focus:ring-purple-600"
+                    className="h-10 pl-10 rounded-lg border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500 transition-all font-poppins"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     aria-label="Search wallets"
                   />
                 </div>
                 <Select value={selectedUser} onValueChange={setSelectedUser}>
-                  <SelectTrigger className="w-[180px] focus:ring-2 focus:ring-purple-600">
+                  <SelectTrigger className="w-full sm:w-48 h-10 rounded-lg border-gray-200 dark:border-gray-600 font-poppins">
                     <SelectValue placeholder="Filter by user" />
                   </SelectTrigger>
                   <SelectContent>
                     {users.map((user) => (
-                      <SelectItem key={user.id} value={user.id}>
+                      <SelectItem key={user.id} value={user.id} className="font-poppins">
                         {user.name}
                       </SelectItem>
                     ))}
@@ -540,27 +482,27 @@ export default function AdminSmartContractWalletsPage() {
                 </Select>
                 <Sheet>
                   <SheetTrigger asChild>
-                    <Button variant="outline" className="h-10">
+                    <Button variant="outline" className="h-10 border-gray-200 hover:bg-gray-100 font-poppins">
                       <Filter className="mr-2 h-4 w-4" />
-                      Advanced Filters
+                      Filters
                     </Button>
                   </SheetTrigger>
-                  <SheetContent>
+                  <SheetContent className="bg-white dark:bg-gray-800">
                     <SheetHeader>
-                      <SheetTitle>Advanced Filters</SheetTitle>
+                      <SheetTitle className="font-poppins">Advanced Filters</SheetTitle>
                     </SheetHeader>
-                    <div className="space-y-6 py-4">
+                    <div className="space-y-6 py-6">
                       <div className="space-y-2">
-                        <Label>Status</Label>
+                        <Label className="font-poppins">Status</Label>
                         <Select value={statusFilter} onValueChange={setStatusFilter}>
-                          <SelectTrigger>
+                          <SelectTrigger className="h-10 font-poppins">
                             <SelectValue placeholder="Select status" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="all">All</SelectItem>
-                            <SelectItem value="active">Active</SelectItem>
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="frozen">Frozen</SelectItem>
+                            <SelectItem value="all" className="font-poppins">All</SelectItem>
+                            <SelectItem value="active" className="font-poppins">Active</SelectItem>
+                            <SelectItem value="pending" className="font-poppins">Pending</SelectItem>
+                            <SelectItem value="frozen" className="font-poppins">Frozen</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -569,40 +511,40 @@ export default function AdminSmartContractWalletsPage() {
                 </Sheet>
               </div>
               <div className="flex items-center gap-3">
-                <div className="flex rounded-md border">
+                <div className="flex rounded-md border border-gray-200 dark:border-gray-600">
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
                           variant={viewMode === "grid" ? "default" : "ghost"}
                           size="icon"
-                          className="h-10 w-10 rounded-none border-0"
+                          className="h-10 w-10 rounded-l-md border-0"
                           onClick={() => setViewMode("grid")}
                           aria-label="Grid view"
                         >
                           <LayoutGrid className="h-4 w-4" />
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent>Grid view</TooltipContent>
+                      <TooltipContent className="font-poppins">Grid view</TooltipContent>
                     </Tooltip>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
                           variant={viewMode === "list" ? "default" : "ghost"}
                           size="icon"
-                          className="h-10 w-10 rounded-none border-0"
+                          className="h-10 w-10 rounded-r-md border-0"
                           onClick={() => setViewMode("list")}
                           aria-label="List view"
                         >
                           <List className="h-4 w-4" />
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent>List view</TooltipContent>
+                      <TooltipContent className="font-poppins">List view</TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
                 </div>
                 <Button
-                  className="h-10 bg-purple-600 hover:bg-purple-700 focus:ring-2 focus:ring-purple-600"
+                  className="h-10 bg-indigo-600 hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 font-poppins"
                   onClick={() => setShowCreateWallet(true)}
                   aria-label="Create wallet"
                 >
@@ -610,23 +552,23 @@ export default function AdminSmartContractWalletsPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="h-10 border-gray-300 hover:bg-gray-100"
+                  className="h-10 border-gray-200 hover:bg-gray-100 font-poppins"
                   onClick={() => setShowImportWallet(true)}
                   aria-label="Import wallet"
                 >
                   Import Wallet
                 </Button>
               </div>
-            </div>
+            </motion.div>
 
             {/* Bulk Actions */}
             {selectedItems.length > 0 && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="flex items-center justify-between bg-gray-100 p-4 rounded-md"
+                className="flex items-center justify-between bg-gray-100 dark:bg-gray-700 p-4 rounded-lg"
               >
-                <div className="text-sm text-gray-700">
+                <div className="text-sm text-gray-700 dark:text-gray-300 font-poppins">
                   <span className="font-medium">{selectedItems.length}</span> wallet(s) selected
                 </div>
                 <div className="flex gap-2">
@@ -634,7 +576,7 @@ export default function AdminSmartContractWalletsPage() {
                     size="sm"
                     onClick={handleBulkFreeze}
                     variant="outline"
-                    className="border-gray-300 hover:bg-gray-200"
+                    className="border-gray-200 hover:bg-gray-100 font-poppins"
                   >
                     Freeze Selected
                   </Button>
@@ -642,7 +584,7 @@ export default function AdminSmartContractWalletsPage() {
                     size="sm"
                     onClick={handleBulkUnfreeze}
                     variant="outline"
-                    className="border-gray-300 hover:bg-gray-200"
+                    className="border-gray-200 hover:bg-gray-100 font-poppins"
                   >
                     Unfreeze Selected
                   </Button>
@@ -651,22 +593,22 @@ export default function AdminSmartContractWalletsPage() {
             )}
 
             <Tabs defaultValue="all" className="w-full">
-              <TabsList className="grid w-full max-w-md grid-cols-3 bg-gray-100 rounded-lg">
+              <TabsList className="grid w-full max-w-md grid-cols-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 <TabsTrigger
                   value="all"
-                  className="text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                  className="text-sm font-poppins data-[state=active]:bg-white dark:data-[state=active]:bg-gray-600 data-[state=active]:shadow-sm"
                 >
                   All Wallets
                 </TabsTrigger>
                 <TabsTrigger
                   value="safe"
-                  className="text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                  className="text-sm font-poppins data-[state=active]:bg-white dark:data-[state=active]:bg-gray-600 data-[state=active]:shadow-sm"
                 >
                   Safe Wallets
                 </TabsTrigger>
                 <TabsTrigger
                   value="aa"
-                  className="text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                  className="text-sm font-poppins data-[state=active]:bg-white dark:data-[state=active]:bg-gray-600 data-[state=active]:shadow-sm"
                 >
                   AA Wallets
                 </TabsTrigger>
@@ -678,7 +620,7 @@ export default function AdminSmartContractWalletsPage() {
                       variants={cardVariants}
                       initial="hidden"
                       animate="visible"
-                      className="flex flex-col items-center justify-center py-12 text-gray-600"
+                      className="flex flex-col items-center justify-center py-12 text-gray-600 dark:text-gray-300"
                     >
                       <Image
                         src="/interconnected-contracts.png"
@@ -687,9 +629,9 @@ export default function AdminSmartContractWalletsPage() {
                         height={80}
                         className="mb-6"
                       />
-                      <h3 className="text-lg font-medium mb-4">No smart contract wallets found.</h3>
+                      <h3 className="text-lg font-medium mb-4 font-poppins">No smart contract wallets found.</h3>
                       <Button
-                        className="h-10 bg-purple-600 hover:bg-purple-700 hover:scale-105 transition-transform"
+                        className="h-10 bg-indigo-600 hover:bg-indigo-700 hover:scale-105 transition-transform font-poppins"
                         onClick={() => setShowCreateWallet(true)}
                       >
                         Create Wallet
@@ -700,7 +642,7 @@ export default function AdminSmartContractWalletsPage() {
                       variants={cardVariants}
                       initial="hidden"
                       animate="visible"
-                      className="overflow-x-auto rounded-md border"
+                      className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-600"
                     >
                       <Table>
                         <TableHeader>
@@ -712,11 +654,11 @@ export default function AdminSmartContractWalletsPage() {
                                 aria-label="Select all wallets"
                               />
                             </TableHead>
-                            <TableHead>Wallet</TableHead>
-                            <TableHead>User</TableHead>
-                            <TableHead>Address</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Actions</TableHead>
+                            <TableHead className="font-poppins">Wallet</TableHead>
+                            <TableHead className="font-poppins">User</TableHead>
+                            <TableHead className="font-poppins">Address</TableHead>
+                            <TableHead className="font-poppins">Status</TableHead>
+                            <TableHead className="font-poppins">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -731,8 +673,8 @@ export default function AdminSmartContractWalletsPage() {
                               </TableCell>
                               <TableCell>
                                 <div className="space-y-1">
-                                  <div className="font-medium text-gray-900">{wallet.name}</div>
-                                  <div className="text-sm text-gray-500">
+                                  <div className="font-medium text-gray-900 dark:text-white font-poppins">{wallet.name}</div>
+                                  <div className="text-sm text-gray-500 dark:text-gray-300 font-poppins">
                                     {wallet.type === "safe" ? "Safe Wallet" : "AA Wallet"}
                                   </div>
                                 </div>
@@ -741,16 +683,16 @@ export default function AdminSmartContractWalletsPage() {
                                 <div className="space-y-1">
                                   <Link
                                     href={`/admin/users/${wallet.userId}`}
-                                    className="font-medium text-purple-600 hover:underline"
+                                    className="font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-poppins"
                                   >
                                     {wallet.userName}
                                   </Link>
-                                  <div className="text-sm text-gray-500">{wallet.userEmail}</div>
+                                  <div className="text-sm text-gray-500 dark:text-gray-300 font-poppins">{wallet.userEmail}</div>
                                 </div>
                               </TableCell>
                               <TableCell>
                                 <div className="flex items-center gap-2">
-                                  <span className="text-sm font-mono text-gray-600">{wallet.address}</span>
+                                  <span className="text-sm font-mono text-gray-600 dark:text-gray-300 font-poppins">{wallet.address}</span>
                                   <TooltipProvider>
                                     <Tooltip>
                                       <TooltipTrigger asChild>
@@ -763,7 +705,7 @@ export default function AdminSmartContractWalletsPage() {
                                           <Copy className="h-4 w-4" />
                                         </Button>
                                       </TooltipTrigger>
-                                      <TooltipContent>Copy address</TooltipContent>
+                                      <TooltipContent className="font-poppins">Copy address</TooltipContent>
                                     </Tooltip>
                                   </TooltipProvider>
                                 </div>
@@ -777,7 +719,7 @@ export default function AdminSmartContractWalletsPage() {
                                       ? "destructive"
                                       : "secondary"
                                   }
-                                  className="px-2 py-1"
+                                  className="px-2 py-1 font-poppins"
                                 >
                                   {wallet.status.charAt(0).toUpperCase() + wallet.status.slice(1)}
                                 </Badge>
@@ -792,13 +734,13 @@ export default function AdminSmartContractWalletsPage() {
                                             <Button
                                               variant="outline"
                                               size="icon"
-                                              className="h-8 w-8"
+                                              className="h-8 w-8 border-gray-200 hover:bg-gray-100"
                                               onClick={() => handleOpenApprovalDialog(wallet)}
                                             >
                                               <Check className="h-4 w-4" />
                                             </Button>
                                           </TooltipTrigger>
-                                          <TooltipContent>Approve wallet</TooltipContent>
+                                          <TooltipContent className="font-poppins">Approve wallet</TooltipContent>
                                         </Tooltip>
                                         <Tooltip>
                                           <TooltipTrigger asChild>
@@ -811,7 +753,7 @@ export default function AdminSmartContractWalletsPage() {
                                               <X className="h-4 w-4" />
                                             </Button>
                                           </TooltipTrigger>
-                                          <TooltipContent>Reject wallet</TooltipContent>
+                                          <TooltipContent className="font-poppins">Reject wallet</TooltipContent>
                                         </Tooltip>
                                       </TooltipProvider>
                                     </>
@@ -833,7 +775,7 @@ export default function AdminSmartContractWalletsPage() {
                                               <Shield className="h-4 w-4" />
                                             </Button>
                                           </TooltipTrigger>
-                                          <TooltipContent>
+                                          <TooltipContent className="font-poppins">
                                             {wallet.status === "active" ? "Freeze wallet" : "Unfreeze wallet"}
                                           </TooltipContent>
                                         </Tooltip>
@@ -845,7 +787,7 @@ export default function AdminSmartContractWalletsPage() {
                                               </Button>
                                             </Link>
                                           </TooltipTrigger>
-                                          <TooltipContent>Edit wallet</TooltipContent>
+                                          <TooltipContent className="font-poppins">Edit wallet</TooltipContent>
                                         </Tooltip>
                                       </TooltipProvider>
                                     </>
@@ -862,7 +804,7 @@ export default function AdminSmartContractWalletsPage() {
                       variants={cardVariants}
                       initial="hidden"
                       animate="visible"
-                      className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                      className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
                     >
                       {paginatedWallets.map((wallet) => (
                         <WalletInfoCard
@@ -887,8 +829,8 @@ export default function AdminSmartContractWalletsPage() {
                   )}
                 </AnimatePresence>
                 {paginatedWallets.length > 0 && (
-                  <div className="flex items-center justify-between mt-4">
-                    <div className="text-sm text-gray-600">
+                  <div className="flex items-center justify-between mt-6">
+                    <div className="text-sm text-gray-600 dark:text-gray-300 font-poppins">
                       Showing {paginatedWallets.length} of {filteredWallets.length} wallets
                     </div>
                     <div className="flex items-center gap-2">
@@ -897,10 +839,11 @@ export default function AdminSmartContractWalletsPage() {
                         size="sm"
                         onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                         disabled={currentPage === 1}
+                        className="border-gray-200 hover:bg-gray-100 font-poppins"
                       >
                         <ChevronLeft className="h-4 w-4" />
                       </Button>
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-gray-600 dark:text-gray-300 font-poppins">
                         Page {currentPage} of {totalPages}
                       </span>
                       <Button
@@ -908,6 +851,7 @@ export default function AdminSmartContractWalletsPage() {
                         size="sm"
                         onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                         disabled={currentPage === totalPages}
+                        className="border-gray-200 hover:bg-gray-100 font-poppins"
                       >
                         <ChevronRight className="h-4 w-4" />
                       </Button>
@@ -922,7 +866,7 @@ export default function AdminSmartContractWalletsPage() {
                       variants={cardVariants}
                       initial="hidden"
                       animate="visible"
-                      className="flex flex-col items-center justify-center py-12 text-gray-600"
+                      className="flex flex-col items-center justify-center py-12 text-gray-600 dark:text-gray-300"
                     >
                       <Image
                         src="/secure-digital-wallet.png"
@@ -931,9 +875,9 @@ export default function AdminSmartContractWalletsPage() {
                         height={80}
                         className="mb-6"
                       />
-                      <h3 className="text-lg font-medium mb-4">No Safe wallets found.</h3>
+                      <h3 className="text-lg font-medium mb-4 font-poppins">No Safe wallets found.</h3>
                       <Button
-                        className="h-10 bg-purple-600 hover:bg-purple-700 hover:scale-105 transition-transform"
+                        className="h-10 bg-indigo-600 hover:bg-indigo-700 hover:scale-105 transition-transform font-poppins"
                         onClick={() => {
                           setWalletType("safe")
                           setShowCreateWallet(true)
@@ -947,7 +891,7 @@ export default function AdminSmartContractWalletsPage() {
                       variants={cardVariants}
                       initial="hidden"
                       animate="visible"
-                      className="overflow-x-auto rounded-md border"
+                      className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-600"
                     >
                       <Table>
                         <TableHeader>
@@ -963,11 +907,11 @@ export default function AdminSmartContractWalletsPage() {
                                 aria-label="Select all safe wallets"
                               />
                             </TableHead>
-                            <TableHead>Wallet</TableHead>
-                            <TableHead>User</TableHead>
-                            <TableHead>Address</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Actions</TableHead>
+                            <TableHead className="font-poppins">Wallet</TableHead>
+                            <TableHead className="font-poppins">User</TableHead>
+                            <TableHead className="font-poppins">Address</TableHead>
+                            <TableHead className="font-poppins">Status</TableHead>
+                            <TableHead className="font-poppins">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -984,24 +928,24 @@ export default function AdminSmartContractWalletsPage() {
                                 </TableCell>
                                 <TableCell>
                                   <div className="space-y-1">
-                                    <div className="font-medium text-gray-900">{wallet.name}</div>
-                                    <div className="text-sm text-gray-500">Safe Wallet</div>
+                                    <div className="font-medium text-gray-900 dark:text-white font-poppins">{wallet.name}</div>
+                                    <div className="text-sm text-gray-500 dark:text-gray-300 font-poppins">Safe Wallet</div>
                                   </div>
                                 </TableCell>
                                 <TableCell>
                                   <div className="space-y-1">
                                     <Link
                                       href={`/admin/users/${wallet.userId}`}
-                                      className="font-medium text-purple-600 hover:underline"
+                                      className="font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-poppins"
                                     >
                                       {wallet.userName}
                                     </Link>
-                                    <div className="text-sm text-gray-500">{wallet.userEmail}</div>
+                                    <div className="text-sm text-gray-500 dark:text-gray-300 font-poppins">{wallet.userEmail}</div>
                                   </div>
                                 </TableCell>
                                 <TableCell>
                                   <div className="flex items-center gap-2">
-                                    <span className="text-sm font-mono text-gray-600">{wallet.address}</span>
+                                    <span className="text-sm font-mono text-gray-600 dark:text-gray-300 font-poppins">{wallet.address}</span>
                                     <TooltipProvider>
                                       <Tooltip>
                                         <TooltipTrigger asChild>
@@ -1014,7 +958,7 @@ export default function AdminSmartContractWalletsPage() {
                                             <Copy className="h-4 w-4" />
                                           </Button>
                                         </TooltipTrigger>
-                                        <TooltipContent>Copy address</TooltipContent>
+                                        <TooltipContent className="font-poppins">Copy address</TooltipContent>
                                       </Tooltip>
                                     </TooltipProvider>
                                   </div>
@@ -1028,7 +972,7 @@ export default function AdminSmartContractWalletsPage() {
                                         ? "destructive"
                                         : "secondary"
                                     }
-                                    className="px-2 py-1"
+                                    className="px-2 py-1 font-poppins"
                                   >
                                     {wallet.status.charAt(0).toUpperCase() + wallet.status.slice(1)}
                                   </Badge>
@@ -1043,13 +987,13 @@ export default function AdminSmartContractWalletsPage() {
                                               <Button
                                                 variant="outline"
                                                 size="icon"
-                                                className="h-8 w-8"
+                                                className="h-8 w-8 border-gray-200 hover:bg-gray-100"
                                                 onClick={() => handleOpenApprovalDialog(wallet)}
                                               >
                                                 <Check className="h-4 w-4" />
                                               </Button>
                                             </TooltipTrigger>
-                                            <TooltipContent>Approve wallet</TooltipContent>
+                                            <TooltipContent className="font-poppins">Approve wallet</TooltipContent>
                                           </Tooltip>
                                           <Tooltip>
                                             <TooltipTrigger asChild>
@@ -1062,7 +1006,7 @@ export default function AdminSmartContractWalletsPage() {
                                                 <X className="h-4 w-4" />
                                               </Button>
                                             </TooltipTrigger>
-                                            <TooltipContent>Reject wallet</TooltipContent>
+                                            <TooltipContent className="font-poppins">Reject wallet</TooltipContent>
                                           </Tooltip>
                                         </TooltipProvider>
                                       </>
@@ -1084,7 +1028,7 @@ export default function AdminSmartContractWalletsPage() {
                                                 <Shield className="h-4 w-4" />
                                               </Button>
                                             </TooltipTrigger>
-                                            <TooltipContent>
+                                            <TooltipContent className="font-poppins">
                                               {wallet.status === "active" ? "Freeze wallet" : "Unfreeze wallet"}
                                             </TooltipContent>
                                           </Tooltip>
@@ -1096,7 +1040,7 @@ export default function AdminSmartContractWalletsPage() {
                                                 </Button>
                                               </Link>
                                             </TooltipTrigger>
-                                            <TooltipContent>Edit wallet</TooltipContent>
+                                            <TooltipContent className="font-poppins">Edit wallet</TooltipContent>
                                           </Tooltip>
                                         </TooltipProvider>
                                       </>
@@ -1113,7 +1057,7 @@ export default function AdminSmartContractWalletsPage() {
                       variants={cardVariants}
                       initial="hidden"
                       animate="visible"
-                      className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                      className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
                     >
                       {paginatedWallets
                         .filter((w) => w.type === "safe")
@@ -1140,8 +1084,8 @@ export default function AdminSmartContractWalletsPage() {
                   )}
                 </AnimatePresence>
                 {paginatedWallets.filter((w) => w.type === "safe").length > 0 && (
-                  <div className="flex items-center justify-between mt-4">
-                    <div className="text-sm text-gray-600">
+                  <div className="flex items-center justify-between mt-6">
+                    <div className="text-sm text-gray-600 dark:text-gray-300 font-poppins">
                       Showing {paginatedWallets.filter((w) => w.type === "safe").length} Safe wallets
                     </div>
                     <div className="flex items-center gap-2">
@@ -1150,10 +1094,11 @@ export default function AdminSmartContractWalletsPage() {
                         size="sm"
                         onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                         disabled={currentPage === 1}
+                        className="border-gray-200 hover:bg-gray-100 font-poppins"
                       >
                         <ChevronLeft className="h-4 w-4" />
                       </Button>
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-gray-600 dark:text-gray-300 font-poppins">
                         Page {currentPage} of {totalPages}
                       </span>
                       <Button
@@ -1161,6 +1106,7 @@ export default function AdminSmartContractWalletsPage() {
                         size="sm"
                         onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                         disabled={currentPage === totalPages}
+                        className="border-gray-200 hover:bg-gray-100 font-poppins"
                       >
                         <ChevronRight className="h-4 w-4" />
                       </Button>
@@ -1175,7 +1121,7 @@ export default function AdminSmartContractWalletsPage() {
                       variants={cardVariants}
                       initial="hidden"
                       animate="visible"
-                      className="flex flex-col items-center justify-center py-12 text-gray-600"
+                      className="flex flex-col items-center justify-center py-12 text-gray-600 dark:text-gray-300"
                     >
                       <Image
                         src="/abstract-wallet-design.png"
@@ -1184,15 +1130,15 @@ export default function AdminSmartContractWalletsPage() {
                         height={80}
                         className="mb-6"
                       />
-                      <h3 className="text-lg font-medium mb-4">No AA wallets found.</h3>
-                      <p className="text-sm text-gray-600 mb-4">AA wallets are coming soon.</p>
+                      <h3 className="text-lg font-medium mb-4 font-poppins">No AA wallets found.</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 font-poppins">AA wallets are coming soon.</p>
                     </motion.div>
                   ) : viewMode === "list" ? (
                     <motion.div
                       variants={cardVariants}
                       initial="hidden"
                       animate="visible"
-                      className="overflow-x-auto rounded-md border"
+                      className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-600"
                     >
                       <Table>
                         <TableHeader>
@@ -1208,11 +1154,11 @@ export default function AdminSmartContractWalletsPage() {
                                 aria-label="Select all AA wallets"
                               />
                             </TableHead>
-                            <TableHead>Wallet</TableHead>
-                            <TableHead>User</TableHead>
-                            <TableHead>Address</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Actions</TableHead>
+                            <TableHead className="font-poppins">Wallet</TableHead>
+                            <TableHead className="font-poppins">User</TableHead>
+                            <TableHead className="font-poppins">Address</TableHead>
+                            <TableHead className="font-poppins">Status</TableHead>
+                            <TableHead className="font-poppins">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -1229,24 +1175,24 @@ export default function AdminSmartContractWalletsPage() {
                                 </TableCell>
                                 <TableCell>
                                   <div className="space-y-1">
-                                    <div className="font-medium text-gray-900">{wallet.name}</div>
-                                    <div className="text-sm text-gray-500">AA Wallet</div>
+                                    <div className="font-medium text-gray-900 dark:text-white font-poppins">{wallet.name}</div>
+                                    <div className="text-sm text-gray-500 dark:text-gray-300 font-poppins">AA Wallet</div>
                                   </div>
                                 </TableCell>
                                 <TableCell>
                                   <div className="space-y-1">
                                     <Link
                                       href={`/admin/users/${wallet.userId}`}
-                                      className="font-medium text-purple-600 hover:underline"
+                                      className="font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-poppins"
                                     >
                                       {wallet.userName}
                                     </Link>
-                                    <div className="text-sm text-gray-500">{wallet.userEmail}</div>
+                                    <div className="text-sm text-gray-500 dark:text-gray-300 font-poppins">{wallet.userEmail}</div>
                                   </div>
                                 </TableCell>
                                 <TableCell>
                                   <div className="flex items-center gap-2">
-                                    <span className="text-sm font-mono text-gray-600">{wallet.address}</span>
+                                    <span className="text-sm font-mono text-gray-600 dark:text-gray-300 font-poppins">{wallet.address}</span>
                                     <TooltipProvider>
                                       <Tooltip>
                                         <TooltipTrigger asChild>
@@ -1259,7 +1205,7 @@ export default function AdminSmartContractWalletsPage() {
                                             <Copy className="h-4 w-4" />
                                           </Button>
                                         </TooltipTrigger>
-                                        <TooltipContent>Copy address</TooltipContent>
+                                        <TooltipContent className="font-poppins">Copy address</TooltipContent>
                                       </Tooltip>
                                     </TooltipProvider>
                                   </div>
@@ -1273,7 +1219,7 @@ export default function AdminSmartContractWalletsPage() {
                                         ? "destructive"
                                         : "secondary"
                                     }
-                                    className="px-2 py-1"
+                                    className="px-2 py-1 font-poppins"
                                   >
                                     {wallet.status.charAt(0).toUpperCase() + wallet.status.slice(1)}
                                   </Badge>
@@ -1288,13 +1234,13 @@ export default function AdminSmartContractWalletsPage() {
                                               <Button
                                                 variant="outline"
                                                 size="icon"
-                                                className="h-8 w-8"
+                                                className="h-8 w-8 border-gray-200 hover:bg-gray-100"
                                                 onClick={() => handleOpenApprovalDialog(wallet)}
                                               >
                                                 <Check className="h-4 w-4" />
                                               </Button>
                                             </TooltipTrigger>
-                                            <TooltipContent>Approve wallet</TooltipContent>
+                                            <TooltipContent className="font-poppins">Approve wallet</TooltipContent>
                                           </Tooltip>
                                           <Tooltip>
                                             <TooltipTrigger asChild>
@@ -1307,7 +1253,7 @@ export default function AdminSmartContractWalletsPage() {
                                                 <X className="h-4 w-4" />
                                               </Button>
                                             </TooltipTrigger>
-                                            <TooltipContent>Reject wallet</TooltipContent>
+                                            <TooltipContent className="font-poppins">Reject wallet</TooltipContent>
                                           </Tooltip>
                                         </TooltipProvider>
                                       </>
@@ -1329,7 +1275,7 @@ export default function AdminSmartContractWalletsPage() {
                                                 <Shield className="h-4 w-4" />
                                               </Button>
                                             </TooltipTrigger>
-                                            <TooltipContent>
+                                            <TooltipContent className="font-poppins">
                                               {wallet.status === "active" ? "Freeze wallet" : "Unfreeze wallet"}
                                             </TooltipContent>
                                           </Tooltip>
@@ -1341,7 +1287,7 @@ export default function AdminSmartContractWalletsPage() {
                                                 </Button>
                                               </Link>
                                             </TooltipTrigger>
-                                            <TooltipContent>Edit wallet</TooltipContent>
+                                            <TooltipContent className="font-poppins">Edit wallet</TooltipContent>
                                           </Tooltip>
                                         </TooltipProvider>
                                       </>
@@ -1358,7 +1304,7 @@ export default function AdminSmartContractWalletsPage() {
                       variants={cardVariants}
                       initial="hidden"
                       animate="visible"
-                      className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                      className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
                     >
                       {paginatedWallets
                         .filter((w) => w.type === "aa")
@@ -1385,8 +1331,8 @@ export default function AdminSmartContractWalletsPage() {
                   )}
                 </AnimatePresence>
                 {paginatedWallets.filter((w) => w.type === "aa").length > 0 && (
-                  <div className="flex items-center justify-between mt-4">
-                    <div className="text-sm text-gray-600">
+                  <div className="flex items-center justify-between mt-6">
+                    <div className="text-sm text-gray-600 dark:text-gray-300 font-poppins">
                       Showing {paginatedWallets.filter((w) => w.type === "aa").length} AA wallets
                     </div>
                     <div className="flex items-center gap-2">
@@ -1395,10 +1341,11 @@ export default function AdminSmartContractWalletsPage() {
                         size="sm"
                         onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                         disabled={currentPage === 1}
+                        className="border-gray-200 hover:bg-gray-100 font-poppins"
                       >
                         <ChevronLeft className="h-4 w-4" />
                       </Button>
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-gray-600 dark:text-gray-300 font-poppins">
                         Page {currentPage} of {totalPages}
                       </span>
                       <Button
@@ -1406,6 +1353,7 @@ export default function AdminSmartContractWalletsPage() {
                         size="sm"
                         onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                         disabled={currentPage === totalPages}
+                        className="border-gray-200 hover:bg-gray-100 font-poppins"
                       >
                         <ChevronRight className="h-4 w-4" />
                       </Button>
@@ -1419,9 +1367,9 @@ export default function AdminSmartContractWalletsPage() {
 
         {/* Dialogs */}
         <Dialog open={showCreateWallet} onOpenChange={setShowCreateWallet}>
-          <DialogContent className="sm:max-w-md bg-white rounded-xl shadow-2xl">
+          <DialogContent className="sm:max-w-md bg-white dark:bg-gray-800 rounded-xl shadow-2xl">
             <DialogHeader>
-              <DialogTitle className="text-xl font-semibold text-gray-900">
+              <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-white font-poppins">
                 Create Smart Contract Wallet
               </DialogTitle>
               <Button
@@ -1440,15 +1388,15 @@ export default function AdminSmartContractWalletsPage() {
               </Button>
             </DialogHeader>
             <ScrollArea className="max-h-[80vh]">
-              <div className="space-y-6 py-4 px-2">
+              <div className="space-y-6 py-6 px-4">
                 {!walletType ? (
                   <>
-                    <h3 className="text-lg font-medium text-gray-900">Select a wallet to create</h3>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white font-poppins">Select a wallet to create</h3>
                     <div className="space-y-4">
                       <motion.div
                         whileHover={{ scale: 1.02 }}
                         transition={{ duration: 0.2 }}
-                        className="flex cursor-pointer items-center justify-between rounded-lg border p-4 hover:bg-gray-50"
+                        className="flex cursor-pointer items-center justify-between rounded-lg border border-gray-200 dark:border-gray-600 p-4 hover:bg-gray-50 dark:hover:bg-gray-700"
                         onClick={() => setWalletType("safe")}
                       >
                         <div className="flex items-center gap-3">
@@ -1456,8 +1404,8 @@ export default function AdminSmartContractWalletsPage() {
                             <Image src="/secure-digital-wallet.png" alt="Safe Wallet" width={24} height={24} />
                           </div>
                           <div>
-                            <div className="font-medium text-gray-900">Safe{"{Wallet}"}</div>
-                            <div className="inline-block rounded bg-green-100 px-2 py-0.5 text-xs text-green-800">
+                            <div className="font-medium text-gray-900 dark:text-white font-poppins">Safe{"{Wallet}"}</div>
+                            <div className="inline-block rounded bg-green-100 px-2 py-0.5 text-xs text-green-800 dark:bg-green-900 dark:text-green-200 font-poppins">
                               With Cobo Safe Enabled
                             </div>
                           </div>
@@ -1469,19 +1417,19 @@ export default function AdminSmartContractWalletsPage() {
                                 <Info className="h-4 w-4" />
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>Safe Wallet Info</TooltipContent>
+                            <TooltipContent className="font-poppins">Safe Wallet Info</TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
                       </motion.div>
 
-                      <div className="flex items-center justify-between rounded-lg border bg-gray-50 p-4 opacity-50">
+                      <div className="flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 p-4 opacity-50">
                         <div className="flex items-center gap-3">
                           <div className="rounded-full bg-blue-100 p-2">
                             <Image src="/abstract-wallet-design.png" alt="AA Wallet" width={24} height={24} />
                           </div>
                           <div>
-                            <div className="font-medium text-gray-900">AA Wallets</div>
-                            <div className="text-xs font-medium text-orange-500">Coming Soon</div>
+                            <div className="font-medium text-gray-900 dark:text-white font-poppins">AA Wallets</div>
+                            <div className="text-xs font-medium text-orange-500 dark:text-orange-400 font-poppins">Coming Soon</div>
                           </div>
                         </div>
                       </div>
@@ -1489,10 +1437,10 @@ export default function AdminSmartContractWalletsPage() {
                   </>
                 ) : (
                   <>
-                    <h3 className="text-lg font-medium text-gray-900">Configure SafeWallet</h3>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white font-poppins">Configure SafeWallet</h3>
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="wallet-name" className="text-gray-700">
+                        <Label htmlFor="wallet-name" className="text-gray-700 dark:text-gray-300 font-poppins">
                           Wallet Name
                         </Label>
                         <Input
@@ -1500,29 +1448,29 @@ export default function AdminSmartContractWalletsPage() {
                           placeholder="Enter wallet name"
                           value={walletName}
                           onChange={(e) => setWalletName(e.target.value)}
-                          className="focus:ring-2 focus:ring-purple-600"
+                          className="h-10 focus:ring-2 focus:ring-indigo-500 font-poppins"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="user" className="text-gray-700">
+                        <Label htmlFor="user" className="text-gray-700 dark:text-gray-300 font-poppins">
                           Create for User
                         </Label>
                         <Select value={createForUser} onValueChange={setCreateForUser}>
-                          <SelectTrigger id="user" className="h-10 focus:ring-2 focus:ring-purple-600">
+                          <SelectTrigger id="user" className="h-10 focus:ring-2 focus:ring-indigo-500 font-poppins">
                             <SelectValue placeholder="Select user" />
                           </SelectTrigger>
                           <SelectContent>
                             {users
                               .filter((u) => u.id !== "all")
                               .map((user) => (
-                                <SelectItem key={user.id} value={user.id}>
+                                <SelectItem key={user.id} value={user.id} className="font-poppins">
                                   {user.name}
                                 </SelectItem>
                               ))}
                           </SelectContent>
                         </Select>
                       </div>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500 dark:text-gray-300 font-poppins">
                         This wallet will be created with Cobo Safe enabled for enhanced security.
                       </p>
                     </div>
@@ -1530,10 +1478,10 @@ export default function AdminSmartContractWalletsPage() {
                 )}
               </div>
             </ScrollArea>
-            <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-600">
               <Button
                 variant="outline"
-                className="h-10 border-gray-300 hover:bg-gray-100"
+                className="h-10 border-gray-200 hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700 font-poppins"
                 onClick={() => {
                   if (walletType) {
                     setWalletType(null)
@@ -1548,7 +1496,7 @@ export default function AdminSmartContractWalletsPage() {
               </Button>
               {walletType && (
                 <Button
-                  className="h-10 bg-purple-600 hover:bg-purple-700"
+                  className="h-10 bg-indigo-600 hover:bg-indigo-700 font-poppins"
                   onClick={handleCreateWallet}
                   disabled={!walletName || !createForUser}
                 >
@@ -1560,9 +1508,9 @@ export default function AdminSmartContractWalletsPage() {
         </Dialog>
 
         <Dialog open={showImportWallet} onOpenChange={setShowImportWallet}>
-          <DialogContent className="sm:max-w-md bg-white rounded-xl shadow-2xl">
+          <DialogContent className="sm:max-w-md bg-white dark:bg-gray-800 rounded-xl shadow-2xl">
             <DialogHeader>
-              <DialogTitle className="text-xl font-semibold text-gray-900">
+              <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-white font-poppins">
                 Import Smart Contract Wallet
               </DialogTitle>
               <Button
@@ -1579,11 +1527,11 @@ export default function AdminSmartContractWalletsPage() {
               </Button>
             </DialogHeader>
             <ScrollArea className="max-h-[80vh]">
-              <div className="space-y-6 py-4 px-2">
-                <h3 className="text-lg font-medium text-gray-900">Import an existing wallet</h3>
+              <div className="space-y-6 py-6 px-4">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white font-poppins">Import an existing wallet</h3>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="wallet-address" className="text-gray-700">
+                    <Label htmlFor="wallet-address" className="text-gray-700 dark:text-gray-300 font-poppins">
                       Wallet Address
                     </Label>
                     <Input
@@ -1591,38 +1539,38 @@ export default function AdminSmartContractWalletsPage() {
                       placeholder="Enter wallet contract address"
                       value={walletAddress}
                       onChange={(e) => setWalletAddress(e.target.value)}
-                      className="focus:ring-2 focus:ring-purple-600"
+                      className="h-10 focus:ring-2 focus:ring-indigo-500 font-poppins"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="user" className="text-gray-700">
+                    <Label htmlFor="user" className="text-gray-700 dark:text-gray-300 font-poppins">
                       Import for User
                     </Label>
                     <Select value={createForUser} onValueChange={setCreateForUser}>
-                      <SelectTrigger id="user" className="h-10 focus:ring-2 focus:ring-purple-600">
+                      <SelectTrigger id="user" className="h-10 focus:ring-2 focus:ring-indigo-500 font-poppins">
                         <SelectValue placeholder="Select user" />
                       </SelectTrigger>
                       <SelectContent>
                         {users
                           .filter((u) => u.id !== "all")
                           .map((user) => (
-                            <SelectItem key={user.id} value={user.id}>
+                            <SelectItem key={user.id} value={user.id} className="font-poppins">
                               {user.name}
                             </SelectItem>
                           ))}
                       </SelectContent>
                     </Select>
                   </div>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-300 font-poppins">
                     Ensure the address belongs to a supported smart contract wallet (e.g., SafeWallet).
                   </p>
                 </div>
               </div>
             </ScrollArea>
-            <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-600">
               <Button
                 variant="outline"
-                className="h-10 border-gray-300 hover:bg-gray-100"
+                className="h-10 border-gray-200 hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700 font-poppins"
                 onClick={() => {
                   setShowImportWallet(false)
                   setCreateForUser("user-1")
@@ -1631,7 +1579,7 @@ export default function AdminSmartContractWalletsPage() {
                 Cancel
               </Button>
               <Button
-                className="h-10 bg-purple-600 hover:bg-purple-700"
+                className="h-10 bg-indigo-600 hover:bg-indigo-700 font-poppins"
                 onClick={handleImportWallet}
                 disabled={!walletAddress || !createForUser}
               >
@@ -1642,60 +1590,64 @@ export default function AdminSmartContractWalletsPage() {
         </Dialog>
 
         <Dialog open={showApprovalDialog} onOpenChange={setShowApprovalDialog}>
-          <DialogContent className="bg-white rounded-xl shadow-2xl">
+          <DialogContent className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl">
             <DialogHeader>
-              <DialogTitle className="text-xl font-semibold text-gray-900">
+              <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-white font-poppins">
                 Approve Wallet Creation
               </DialogTitle>
-              <DialogDescription className="text-gray-600">
+              <DialogDescription className="text-gray-600 dark:text-gray-300 font-poppins">
                 Review and approve or reject the creation of a new smart contract wallet.
               </DialogDescription>
             </DialogHeader>
             {itemToApprove && (
               <div className="grid gap-4 py-4">
                 <div className="grid gap-2">
-                  <span className="font-medium text-gray-700">Name:</span> {itemToApprove.name}
+                  <span className="font-medium text-gray-700 dark:text-gray-300 font-poppins">Name:</span> {itemToApprove.name}
                 </div>
                 <div className="grid gap-2">
-                  <span className="font-medium text-gray-700">User:</span>{" "}
+                  <span className="font-medium text-gray-700 dark:text-gray-300 font-poppins">User:</span>{" "}
                   <Link
                     href={`/admin/users/${itemToApprove.userId}`}
-                    className="text-purple-600 hover:underline"
+                    className="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-poppins"
                   >
                     {itemToApprove.userName}
                   </Link>{" "}
-                  <span className="text-gray-500">({itemToApprove.userEmail})</span>
+                  <span className="text-gray-500 dark:text-gray-300 font-poppins">({itemToApprove.userEmail})</span>
                 </div>
                 <div className="grid gap-2">
-                  <span className="font-medium text-gray-700">Type:</span>{" "}
+                  <span className="font-medium text-gray-700 dark:text-gray-300 font-poppins">Type:</span>{" "}
                   {itemToApprove.type === "safe" ? "Safe Wallet" : "AA Wallet"}
                 </div>
                 <div className="grid gap-2">
-                  <span className="font-medium text-gray-700">Address:</span> {itemToApprove.address}
+                  <span className="font-medium text-gray-700 dark:text-gray-300 font-poppins">Address:</span> {itemToApprove.address}
                 </div>
                 <div className="grid gap-2">
-                  <span className="font-medium text-gray-700">Created At:</span> {itemToApprove.created}
+                  <span className="font-medium text-gray-700 dark:text-gray-300 font-poppins">Created At:</span> {itemToApprove.created}
                 </div>
               </div>
             )}
             <DialogFooter>
               <Button
                 variant="outline"
-                className="border-gray-300 hover:bg-gray-100"
+                className="border-gray-200 hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700 font-poppins"
                 onClick={() => setShowApprovalDialog(false)}
               >
                 Cancel
               </Button>
-              <Button variant="destructive" onClick={handleRejectItem}>
+              <Button variant="destructive" onClick={handleRejectItem} className="font-poppins">
                 Reject
               </Button>
-              <Button className="bg-green-600 hover:bg-green-700" onClick={handleApproveItem}>
+              <Button className="bg-indigo-600 hover:bg-indigo-700 font-poppins" onClick={handleApproveItem}>
                 Approve
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </div>
-    </DashboardLayout>
+        </div>
+        </DashboardLayout>
+
+   
   )
 }
+
+    

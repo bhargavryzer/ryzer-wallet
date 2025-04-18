@@ -90,12 +90,6 @@ export function Sidebar({ className }: SidebarProps) {
           icon: Layers,
           active: pathname === "/wallets/smart-contract",
         },
-        {
-          label: "Exchange Wallets",
-          href: "/wallets/exchange",
-          icon: Activity,
-          active: pathname === "/wallets/exchange",
-        },
       ],
     },
     {
