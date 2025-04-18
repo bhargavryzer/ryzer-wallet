@@ -49,7 +49,7 @@ export function Sidebar({ className }: SidebarProps) {
   const { isCollapsed, toggle } = useSidebar()
   const [isWalletsOpen, setIsWalletsOpen] = useState(false)
 
-  const isWalletsActive = pathname.startsWith("/wallets")
+  const isWalletsActive = pathname ==="/wallets"
 
   useEffect(() => {
     if (isWalletsActive && !isCollapsed) {
@@ -70,7 +70,7 @@ export function Sidebar({ className }: SidebarProps) {
       label: "Wallets",
       icon: Wallet,
       href: "/wallets",
-      active: pathname.startsWith("/wallets"),
+      active: pathname === "/wallets",
       children: [
         {
           label: "Custodial Wallets",
@@ -90,25 +90,19 @@ export function Sidebar({ className }: SidebarProps) {
           icon: Layers,
           active: pathname === "/wallets/smart-contract",
         },
-        {
-          label: "Exchange Wallets",
-          href: "/wallets/exchange",
-          icon: Activity,
-          active: pathname === "/wallets/exchange",
-        },
       ],
     },
     {
       label: "Transaction Policies",
       icon: Shield,
       href: "/transaction-policies",
-      active: pathname.startsWith("/transaction-policies"),
+      active: pathname === "/transaction-policies",
     },
     {
       label: "Transaction History",
       icon : History,
       href: "/transaction-history",
-      active: pathname.startsWith("/transaction-history"),
+      active: pathname === "/transaction-history",
     },
     {
       label: "Address Book",

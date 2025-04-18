@@ -165,10 +165,10 @@ function WalletInfoCard({
       transition={{ duration: 0.3 }}
       className="relative"
     >
-      <Card className="overflow-hidden border-none shadow-lg hover:shadow-xl transition-shadow duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900 dark:to-indigo-900">
-          <CardTitle className="text-lg font-semibold">{name}</CardTitle>
-          <CardDescription className="text-sm">{type}</CardDescription>
+      <Card className="overflow-hidden border-none shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 hover:scale-[1.02]">
+        <CardHeader className="bg-gradient-to-r from-[#725AEC]/10 to-[#725AEC]/5 dark:from-[#725AEC]/20 dark:to-[#725AEC]/10">
+          <CardTitle className="text-lg font-semibold text-[#725AEC]">{name}</CardTitle>
+          <CardDescription className="text-sm text-[#725AEC]/70">{type}</CardDescription>
         </CardHeader>
         <CardContent className="pt-4 space-y-3">
           {userName && userEmail && (
@@ -225,15 +225,15 @@ function WalletInfoCard({
               <Button
                 size="sm"
                 onClick={onApprove}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-[#725AEC] hover:bg-[#725AEC]/90 transition-colors"
               >
                 <Check className="mr-2 h-4 w-4" /> Approve
               </Button>
               <Button
                 size="sm"
-                variant="destructive"
+                variant="outline"
                 onClick={onApprove}
-                className="hover:bg-red-700"
+                className="border-[#725AEC] text-[#725AEC] hover:bg-[#725AEC]/10 transition-colors"
               >
                 <X className="mr-2 h-4 w-4" /> Reject
               </Button>
@@ -339,46 +339,7 @@ export default function AdminCustodialWalletsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
-        >
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
-                Admin: Custodial Wallets
-              </h1>
-              <Badge className="bg-blue-600 text-white">Admin</Badge>
-            </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Manage all custodial wallets with enhanced security and control
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-            <span>
-              <span className="font-semibold">Wallets:</span> {wallets.length}
-            </span>
-            <span className="hidden sm:inline">|</span>
-            <span>
-              <span className="font-semibold">Users:</span>{" "}
-              {new Set(wallets.map((w) => w.userId)).size}
-            </span>
-            <span className="hidden sm:inline">|</span>
-            <span>
-              <span className="font-semibold">Tokens:</span>{" "}
-              {wallets.reduce((sum, w) => sum + w.tokens, 0)}
-            </span>
-            <span className="hidden sm:inline">|</span>
-            <span>
-              <span className="font-semibold">Total Value:</span>{" "}
-              {hideBalance
-                ? "••••••"
-                : `$${wallets
-                    .reduce(
-                      (sum, w) =>
-                        sum + parseFloat(w.balance.replace(/[^0-9.-]+/g, "")),
-                      0
-                    )
-                    .toLocaleString()}`}
-            </span>
-          </div>
+        >  
         </motion.div>
 
         {/* Wallet Info Card */}
@@ -397,25 +358,33 @@ export default function AdminCustodialWalletsPage() {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="h-10 text-white hover:bg-indigo-600"
-                    >
-                      <svg
-                        className="mr-2 h-5 w-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      How to Manage Wallets?
-                    </Button>
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-white dark:text-gray-400">
+            <span>
+              <span className="font-semibold">Wallets:</span> {wallets.length}
+            </span>
+            
+            <span>
+              <span className="font-semibold">Users:</span>{" "}
+              {new Set(wallets.map((w) => w.userId)).size}
+            </span>
+            
+            <span>
+              <span className="font-semibold">Tokens:</span>{" "}
+              {wallets.reduce((sum, w) => sum + w.tokens, 0)}
+            </span>
+            <span>
+              <span className="font-semibold">Total Value:</span>{" "}
+              {hideBalance
+                ? "••••••"
+                : `$${wallets
+                    .reduce(
+                      (sum, w) =>
+                        sum + parseFloat(w.balance.replace(/[^0-9.-]+/g, "")),
+                      0
+                    )
+                    .toLocaleString()}`}
+            </span>
+          </div>
                   </TooltipTrigger>
                   <TooltipContent>Wallet management guide</TooltipContent>
                 </Tooltip>
@@ -432,10 +401,10 @@ export default function AdminCustodialWalletsPage() {
             >
               <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                 <div className="relative w-full sm:w-80">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#725AEC]" />
                   <Input
                     placeholder="Search by wallet name"
-                    className="h-11 pl-10 rounded-lg border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
+                    className="h-11 pl-10 rounded-lg border-[#725AEC]/20 dark:border-[#725AEC]/30 focus:ring-2 focus:ring-[#725AEC]/50 transition-all"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -663,9 +632,6 @@ export default function AdminCustodialWalletsPage() {
                           </td>
                           <td className="py-4">
                             <div className="flex items-center gap-2">
-                              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                WaaS
-                              </span>
                               <span className="text-sm text-gray-500 dark:text-gray-400 font-mono">
                                 {wallet.id}
                               </span>

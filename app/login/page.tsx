@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { QRCodeSVG } from "qrcode.react"
+import { SignupModal } from "@/components/signup-modal"
 
 // Constants
 const RYZER_GUARD_CODE_LENGTH = 6
@@ -208,6 +209,7 @@ export default function LoginPage() {
   const router = useRouter()
   const { toast } = useToast()
   const dialogRef = useRef<HTMLDivElement>(null)
+  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false)
 
   // Check MetaMask installation
   useEffect(() => {
@@ -525,12 +527,12 @@ export default function LoginPage() {
               <div className="mt-4 text-center">
                 <p className="text-xs">
                   New to Ryzer?{" "}
-                  <Link
-                    href="/register"
+                  <button
+                    onClick={() => setIsSignupModalOpen(true)}
                     className="text-purple-600 font-medium hover:underline focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
                     Request Access
-                  </Link>
+                  </button>
                 </p>
               </div>
             </TabsContent>
@@ -692,6 +694,7 @@ export default function LoginPage() {
           </div>
         </DialogContent>
       </Dialog>
+      <SignupModal isOpen={isSignupModalOpen} onClose={() => setIsSignupModalOpen(false)} />
     </div>
   )
 }

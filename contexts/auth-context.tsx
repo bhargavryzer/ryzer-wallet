@@ -10,12 +10,19 @@ import { useUIStore } from "@/stores/useUIStore";
 import { useWalletStore } from "@/stores/useWalletStore";
 import { useSecurityStore } from "@/stores/useSecurityStore";
 
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: 'admin' ;
+}
+
 interface AuthContextType {
+  user: User | null;
+  userRole: 'admin' | null;
   isLoading: boolean;
   login: (provider: AuthProvider, data?: any) => Promise<boolean>;
   logout: () => Promise<void>;
-  isAuthenticated: boolean;
-  user: any;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -46,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   } = useSecurityStore();
 
   const isAuthenticated = status === "authenticated";
-  const user = session?.user;
+  const user = session?.user as User | null;
 
   // Handle login with different providers
   const handleLogin = async (provider: AuthProvider, data?: any): Promise<boolean> => {
@@ -150,11 +157,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider
       value={{
+        user,
+        userRole: user?.role || null,
         isLoading,
         login: handleLogin,
         logout,
-        isAuthenticated,
-        user,
       }}
     >
       {children}

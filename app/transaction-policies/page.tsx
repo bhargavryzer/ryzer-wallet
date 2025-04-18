@@ -310,29 +310,19 @@ export default function TransactionPoliciesPage() {
           transition={{ duration: 0.5 }}
           className="flex flex-col sm:flex-row items-start justify-between gap-4"
         >
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">
-                Admin: Transaction Policies
-              </h1>
-              <Badge className="bg-blue-100 text-blue-800">Admin</Badge>
-            </div>
-            <p className="text-lg text-gray-600">
-              Oversee and manage transaction policies and address lists across the platform.
-            </p>
-          </div>
-          <div className="flex items-center gap-4 text-sm text-gray-600">
-            <span className="font-medium">Policies: {policies.length}</span>
-            <span className="hidden sm:inline">|</span>
-            <span className="font-medium">Lists: {addressLists.length}</span>
-          </div>
         </motion.div>
 
         {/* Summary Dashboard */}
         <motion.div variants={cardVariants} initial="hidden" animate="visible">
           <Card className="bg-white border-gray-200 shadow-lg rounded-xl">
             <CardHeader>
-              <CardTitle className="text-lg font-semibold text-gray-900">Admin Overview</CardTitle>
+            <div className="space-y-1"> 
+            <h4 className="text-lg font-medium text-blue-800">Transaction Policies Overview</h4>     
+         
+          <p className="text-sm text-black-600">
+            Oversee and manage transaction policies and address lists across the platform.
+          </p>
+        </div>
             </CardHeader>
             <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="flex items-center gap-4">

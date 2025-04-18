@@ -1,84 +1,119 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import { useEffect, useRef } from "react"
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+} from "chart.js"
+import { Line } from "react-chartjs-2"
 
-const data = [
-  { date: "Jan 1", value: 1000000 },
-  { date: "Jan 15", value: 1200000 },
-  { date: "Feb 1", value: 1100000 },
-  { date: "Feb 15", value: 1300000 },
-  { date: "Mar 1", value: 1500000 },
-  { date: "Mar 15", value: 1400000 },
-  { date: "Apr 1", value: 1600000 },
-  { date: "Apr 15", value: 1800000 },
-  { date: "May 1", value: 2000000 },
-  { date: "May 15", value: 2200000 },
-  { date: "Jun 1", value: 2400000 },
-  { date: "Jun 15", value: 2600000 },
-]
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+)
 
-export function WalletBalanceChart() {
-  const [mounted, setMounted] = useState(false)
+interface WalletBalanceChartProps {
+  data?: {
+    labels: string[]
+    datasets: {
+      label: string
+      data: number[]
+      borderColor: string
+      backgroundColor: string
+      fill: boolean
+    }[]
+  }
+}
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+export function WalletBalanceChart({ data }: WalletBalanceChartProps) {
+  const chartRef = useRef<ChartJS<"line">>(null)
 
-  if (!mounted) {
-    return <div className="h-[300px] bg-muted/20 rounded-md animate-pulse" />
+  const defaultData = {
+    labels: [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ],
+    datasets: [
+      {
+        label: "Balance",
+        data: [
+          12000, 19000, 15000, 25000, 22000, 30000, 28000, 35000, 40000, 45000,
+          50000, 55000,
+        ],
+        borderColor: "rgb(147, 51, 234)",
+        backgroundColor: "rgba(147, 51, 234, 0.1)",
+        fill: true,
+      },
+    ],
+  }
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        mode: "index" as const,
+        intersect: false,
+        callbacks: {
+          label: function (context: any) {
+            return `$${context.parsed.y.toLocaleString()}`
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+      },
+      y: {
+        grid: {
+          color: "rgba(0, 0, 0, 0.05)",
+        },
+        ticks: {
+          callback: function (value: any) {
+            return `$${value.toLocaleString()}`
+          },
+        },
+      },
+    },
   }
 
   return (
-    <div className="h-[300px]">
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart
-          data={data}
-          margin={{
-            top: 5,
-            right: 10,
-            left: 10,
-            bottom: 0,
-          }}
-        >
-          <XAxis dataKey="date" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-          <YAxis
-            stroke="#888888"
-            fontSize={12}
-            tickLine={false}
-            axisLine={false}
-            tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`}
-          />
-          <Tooltip
-            content={({ active, payload }) => {
-              if (active && payload && payload.length) {
-                return (
-                  <div className="rounded-lg border bg-background p-2 shadow-sm">
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="flex flex-col">
-                        <span className="text-[0.70rem] uppercase text-muted-foreground">Date</span>
-                        <span className="font-bold text-sm">{payload[0].payload.date}</span>
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-[0.70rem] uppercase text-muted-foreground">Value</span>
-                        <span className="font-bold text-sm">${payload[0].value.toLocaleString()}</span>
-                      </div>
-                    </div>
-                  </div>
-                )
-              }
-              return null
-            }}
-          />
-          <Line
-            type="monotone"
-            dataKey="value"
-            stroke="#7c3aed"
-            strokeWidth={2}
-            activeDot={{ r: 6, style: { fill: "#7c3aed" } }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+    <div className="h-[300px] w-full">
+      <Line
+        ref={chartRef}
+        options={options}
+        data={data || defaultData}
+        className="w-full"
+      />
     </div>
   )
 }

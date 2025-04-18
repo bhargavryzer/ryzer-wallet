@@ -5,6 +5,12 @@ import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
 
+export const metadata = {
+  title: "Ryzer Wallet",
+  description: "Secure, scalable, and compliant Wallet-as-a-Service platform for real estate tokenization",
+  generator: 'v0.dev'
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -26,10 +32,3 @@ export default function RootLayout({
     </html>
   )
 }
-
-
-import './globals.css'
-
-export const metadata = {
-      generator: 'v0.dev'
-    };

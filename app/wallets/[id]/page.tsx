@@ -176,7 +176,7 @@ const walletData: { [key: string]: Wallet } = {
 export default function WalletDetailsPage() {
   const params = useParams()
   const router = useRouter()
-  const walletId = params.id as string
+  const walletId = params?.id ?? ''
   const wallet = walletData[walletId as keyof typeof walletData]
   const { toast } = useToast()
 
